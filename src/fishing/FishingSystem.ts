@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { Game } from '../core/Game';
-import { FISH, fishById } from '../data/fish';
+import { fishById } from '../data/fish';
 import { fishValue } from '../data/economy';
 import { SPOTS } from '../data/spots';
 import { T, fmt, kg } from '../data/strings';
@@ -475,5 +475,3 @@ export class FishingSystem {
     }
   }
 }
-
-export const FISH_COUNT = FISH.length;

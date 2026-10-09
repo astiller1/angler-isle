@@ -27,7 +27,10 @@ See `ROADMAP.md` for milestones. **Milestone 1** = planet + island + harbor vill
 ## Run
 ```bash
 npm install
-npm run dev          # http://localhost:5173  (add ?debug for tuning panel + stats)
+npm run dev          # http://localhost:5173
+                     #   ?debug  tuning panel (lil-gui), fps/draw-call counter, cheats
+                     #   ?reset  start a new game (clears the localStorage save)
+                     #   ?view=characters/cat | ?view=fish/ | ?view=all  model viewer (C toggles collision)
 npm test             # vitest: pure game logic + data validation
 npm run typecheck
 npm run art          # rebuild ALL .glb from Blender scripts (Blender 4.2+, auto-detected or BLENDER_PATH)
@@ -51,8 +54,8 @@ no physics engine — "up" changes across the planet). Plain DOM/CSS HUD. Vitest
   (so long piers follow the curvature), scattered vegetation is instanced. Collision = terrain + all `COL_*`
   proxies merged into one BVH (`Collision.ts`).
 - `src/player/` — `PlayerController` (capsule vs BVH, radial gravity, movement modes — `OnFoot` now, `InBoat`
-  later), `CameraRig` (orbit in the player's tangent frame, parallel-transported reference), `PartAnimator`
-  (procedural animation of named model parts).
+  later), `CameraRig` (orbit in the player's tangent frame, parallel-transported reference, gentle auto-follow),
+  `Character` (procedural pose animation of named model parts), `Player` (glues body, cat, rod, cooler, camera).
 - `src/fishing/` — `logic.ts` is a pure, unit-tested state machine + tension model; `FishingSystem.ts` does visuals.
 - `src/inventory/`, `src/npc/`, `src/economy/`, `src/interaction/`, `src/ui/`, `src/state/` — one concern each.
 - Systems communicate through `EventBus` events (`fish:caught`, `fish:sold`, `request:delivered`, `round:started`…).
@@ -68,11 +71,24 @@ Typed with `satisfies`; `validate.ts` checks cross references at startup and in 
   kit (`kit.py` primitives/export, `palette.py` colors, `animals.py`, `fishkit.py`). Folders starting with `_`
   are not exported.
 - Single material "Palette" + vertex colors ("Col"). Low poly. Models face Blender **-Y** (three.js +Z).
-- `COL_*` objects = collision proxies (hidden in game). `ANCHOR_*` / `SLOT_*` empties = attachment points.
+- Collision proxies: `COL_*` = solid (blocks the player AND the camera spring arm); `COLP_*` = player-only
+  (railings, posts, tree trunks — the camera may pass through). `ANCHOR_*` / `SLOT_*` empties = attachment
+  points; anchor names must be unique across the island (`World.anchors`).
+- Static pieces longer than 4 m are tessellated before being bent onto the sphere (otherwise long boxes sag
+  between their corners on the curved planet).
+- Walkable surfaces should sit ≥ 0.2 m above surrounding ground (e.g. the dock is at 2.2, the village at 2.0),
+  otherwise the capsule can slip into the deck's collision box from the side.
 - Characters are rigid named parts (`body`, `head`, `arm_L/R`, `leg_L/R`, `tail`, …) with pivots at the
   joints; animation is procedural in code.
 - Terrain: `art/terrain/island.py` reads `art/terrain/island_shape.json` (also imported by the game for the
   planet radius). Change island shape there, re-run `npm run art -- terrain`.
+
+## Testing in the browser pane / automation
+- `window.angler` exposes `{ game, state, player, world, fishing, neighbors, env }`.
+- `angler.game.step(n, dt)` advances frames synchronously (useful when the tab is throttled/hidden —
+  a hidden browser pane runs requestAnimationFrame at ~1 fps).
+- Input latches key presses between frames, so synthetic keydown/keyup pairs work at any frame rate.
+- Only one game tab at a time: every tab autosaves to the same localStorage key.
 
 ## Conventions
 - TypeScript strict, small modules, no default exports. Game text only via `strings.ts` (German).

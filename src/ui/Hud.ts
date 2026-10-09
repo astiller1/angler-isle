@@ -1,6 +1,6 @@
 import type { Game } from '../core/Game';
 import type { Action } from '../core/Input';
-import { FISH, fishById } from '../data/fish';
+import { fishById } from '../data/fish';
 import { NEIGHBORS } from '../data/neighbors';
 import { T, fmt, kg } from '../data/strings';
 import { coolerCapacity } from '../inventory/Cooler';
@@ -207,5 +207,3 @@ export class Hud {
     this.menu.update();
   }
 }
-
-export const ALL_FISH_IDS = FISH.map((f) => f.id);

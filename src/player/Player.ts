@@ -23,6 +23,8 @@ export class Player {
   /** Number of systems currently requesting a movement lock. */
   private locks = new Set<string>();
   private wish = new THREE.Vector3();
+  /** Seconds since the player last turned the camera manually. */
+  private sinceLook = 0;
 
   constructor(
     private game: Game,
@@ -86,6 +88,12 @@ export class Player {
     this.cat.update(dt);
     this.cooler.update(dt);
 
+    // gentle auto-follow: ease the camera behind the cat while walking, unless the player steers it
+    const manual = inp.look.lengthSq() > 0.001 || inp.mouseDelta.lengthSq() > 0;
+    this.sinceLook = manual ? 0 : this.sinceLook + dt;
+    if (!this.locked && this.sinceLook > 1.0 && c.speed > 1.5 && c.facing.dot(this.rig.forward) > -0.2) {
+      this.rig.forward.lerp(c.facing, 1 - Math.exp(-dt * 1.1));
+    }
     this.rig.update(c.position, inp.look, inp.mouseDelta, dt);
   }
 }
