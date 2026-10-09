@@ -1,0 +1,13 @@
+:root {
+  --ink: #3b2a1e;
+  --paper: #fff7e8;
+  --accent: #ff8a5b;
+  --teal: #2bb3a6;
+  --shadow: 0 4px 0 rgba(59, 42, 30, 0.25);
+  font-family: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #ffd2a6; }
+#game { display: block; width: 100vw; height: 100vh; }
+#ui { position: fixed; inset: 0; pointer-events: none; color: var(--ink); user-select: none; }
+.loading { position: absolute; inset: 0; display: grid; place-items: center; font-size: 28px; font-weight: bold; color: #fff; text-shadow: 0 2px 0 rgba(0,0,0,.25); background: linear-gradient(#6fb3e8, #ffd2a6); }
