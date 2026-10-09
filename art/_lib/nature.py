@@ -127,15 +127,13 @@ def rock(seed=1, size=1.0, flat=1.0, color="rock", name="rock", collide=True):
 def flowers(seed=1, name="flowers"):
     r = rng(seed)
     mb = MB()
-    for k in range(9):
+    for k in range(7):
         x, y = r.uniform(-0.6, 0.6), r.uniform(-0.6, 0.6)
         h = r.uniform(0.15, 0.35)
-        mb.cyl(0.015, h, (x, y, h / 2), color="grass_dark", seg=4)
+        mb.cyl(0.015, h, (x, y, h / 2), color="grass_dark", seg=3)
         c = r.choice(["flower_red", "flower_yellow", "flower_pink", "white"])
-        for p in range(5):
-            a = p / 5 * math.tau
-            mb.sphere(0.04, (x + math.cos(a) * 0.045, y + math.sin(a) * 0.045, h), scale=(1, 1, 0.5), color=c, seg=6, rings=3)
-        mb.sphere(0.03, (x, y, h + 0.01), color="flower_yellow", seg=6, rings=3)
+        mb.cyl(0.075, 0.025, (x, y, h), color=c, seg=5)
+        mb.cyl(0.03, 0.03, (x, y, h + 0.012), color="flower_yellow", seg=4)
     return obj_from(mb, name)
 
 

@@ -73,12 +73,12 @@ function buildGeometry(): THREE.BufferGeometry {
   const R = PLANET_RADIUS;
   // ring distances (map meters from the pole) — dense near the island
   const rings: number[] = [];
-  for (let d = 0; d < 260; d += 2) rings.push(d);
-  for (let d = 260; d < 600; d += 8) rings.push(d);
+  for (let d = 0; d < 250; d += 2.5) rings.push(d);
+  for (let d = 250; d < 600; d += 10) rings.push(d);
   const maxD = Math.PI * R;
   for (let d = 600; d < maxD; d += 40) rings.push(d);
   rings.push(maxD);
-  const seg = 220;
+  const seg = 180;
   const pos: number[] = [];
   const idx: number[] = [];
   for (let r = 0; r < rings.length; r++) {

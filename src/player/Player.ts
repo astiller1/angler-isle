@@ -6,7 +6,7 @@ import { Character, type Pose } from './Character';
 import { PlayerController } from './PlayerController';
 import { CoolerView } from '../inventory/CoolerView';
 import type { GameState } from '../state/GameState';
-import { toTangent } from '../planet/Planet';
+import { heightOf, toTangent } from '../planet/Planet';
 
 /**
  * The player: physics body + cat model + camera + carried items (rod, cooler).
@@ -78,7 +78,7 @@ export class Player {
     this.cat.root.quaternion.copy(c.quaternion);
     this.cat.speed = c.speed;
     if (this.poseOverride) this.cat.pose = this.poseOverride;
-    else if (c.inWater && c.speed > 0.3 && c.position.length() - 600 < -0.3) this.cat.pose = 'swim';
+    else if (c.inWater && heightOf(c.position) < -0.3) this.cat.pose = 'swim';
     else if (!c.grounded && !c.inWater) this.cat.pose = 'jump';
     else if (c.speed > 5.2) this.cat.pose = 'run';
     else if (c.speed > 0.4) this.cat.pose = 'walk';

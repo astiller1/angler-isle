@@ -28,6 +28,9 @@ interface Footprint {
   max: THREE.Vector2;
 }
 
+/** Size (m) of the spatial chunks used to batch instanced scatter. */
+const CHUNK = 45;
+
 /** Deterministic PRNG (mulberry32). */
 export function mulberry32(seed: number): () => number {
   let a = seed >>> 0;
@@ -178,16 +181,19 @@ export class World {
         s: rule.scale[0] + rand() * (rule.scale[1] - rule.scale[0]),
       });
     }
+    // group by model and by spatial chunk so frustum/shadow culling can skip far-away groups
     const byModel = new Map<string, typeof accepted>();
     for (const p of accepted) {
-      if (!byModel.has(p.model)) byModel.set(p.model, []);
-      byModel.get(p.model)!.push(p);
+      const key = `${p.model}|${Math.floor(p.x / CHUNK)},${Math.floor(p.z / CHUNK)}`;
+      if (!byModel.has(key)) byModel.set(key, []);
+      byModel.get(key)!.push(p);
     }
     const q = new THREE.Quaternion();
     const pos = new THREE.Vector3();
     const scl = new THREE.Vector3();
     const mat = new THREE.Matrix4();
-    for (const [model, list] of byModel) {
+    for (const [key, list] of byModel) {
+      const model = key.split('|')[0];
       const matrices = list.map((p) => {
         orientationAt(p.x, p.z, p.yaw, q);
         mapToWorld(p.x, p.z, p.h - (rule.sink ?? 0) * p.s, pos);
@@ -207,7 +213,7 @@ export class World {
         matrices.forEach((M, i) => inst.setMatrixAt(i, mat.copy(M)));
         inst.instanceMatrix.needsUpdate = true;
         inst.computeBoundingSphere();
-        inst.castShadow = rule.collide;
+        inst.castShadow = rule.collide && !model.includes('bush') && !model.includes('pebble');
         inst.receiveShadow = true;
         inst.name = `scatter:${model}`;
         this.root.add(inst);

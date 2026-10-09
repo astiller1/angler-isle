@@ -1,66 +1,133 @@
 import * as THREE from 'three';
 import './ui/styles.css';
 import { Game } from './core/Game';
-import { Collision } from './world/Collision';
-import { Seabed } from './world/Seabed';
+import { World } from './world/World';
 import { Environment } from './world/Environment';
-import { CameraRig, CAMERA_SETTINGS } from './player/CameraRig';
-import { PlayerController } from './player/PlayerController';
-import { mapToWorld, toTangent, upAt } from './planet/Planet';
+import { Player } from './player/Player';
+import { InteractionSystem } from './interaction/Interaction';
+import { FishingSystem } from './fishing/FishingSystem';
+import { SpotMarkers } from './fishing/SpotMarkers';
+import { Neighbors } from './npc/Neighbors';
+import { Hud } from './ui/Hud';
+import { renderFishIcons } from './ui/FishIcons';
+import { loadState, saveState } from './state/save';
+import { validateData } from './data/validate';
+import { T, fmt } from './data/strings';
+import { mapToWorld, orientationAt, toTangent, worldToMap } from './planet/Planet';
 
-async function boot() {
+async function boot(): Promise<void> {
   const canvas = document.getElementById('game') as HTMLCanvasElement;
-  const game = new Game(canvas);
   const ui = document.getElementById('ui')!;
-  ui.innerHTML = `<div class="loading">Lade Insel…</div>`;
-  await game.assets.loadAll();
+  ui.innerHTML = `<div class="loading"><div>${T.loading}<small class="progress"></small></div></div>`;
+  const game = new Game(canvas);
 
-  const terrain = game.assets.get('terrain/island');
-  terrain.traverse((o) => {
-    if ((o as THREE.Mesh).isMesh) o.castShadow = false;
+  const problems = validateData();
+  if (problems.length) console.warn('Data problems:\n' + problems.join('\n'));
+
+  await game.assets.loadAll((done, total) => {
+    const el = ui.querySelector('.progress');
+    if (el) el.textContent = `${done} / ${total}`;
   });
-  game.scene.add(terrain);
 
-  const collision = new Collision();
-  terrain.traverse((o) => (o as THREE.Mesh).isMesh && collision.addMesh(o as THREE.Mesh));
-  collision.build();
-  const seabed = new Seabed(collision.bvh!);
-  const env = new Environment(game.scene, seabed);
+  const { state, isNew } = loadState();
+  const world = new World(game.assets);
+  world.build();
+  game.scene.add(world.root);
+  const env = new Environment(game.scene, world.seabed);
+  const hud = new Hud(game, state, renderFishIcons(game.assets));
+  const player = new Player(game, world, state);
+  const interaction = new InteractionSystem(game, player, hud);
 
-  const rig = new CameraRig(innerWidth / innerHeight, collision);
-  game.camera = rig.camera;
+  // ---- spawn: saved position, or inside the tackle shack facing the rod rack
+  const spawn = world.anchor('ANCHOR_spawn');
+  const rack = world.anchor('ANCHOR_rack_rod');
+  if (state.player) {
+    const p = state.player;
+    player.controller.teleport(mapToWorld(p.x, p.z, p.h + 0.2), new THREE.Vector3(Math.sin(p.yaw), 0, Math.cos(p.yaw)));
+  } else {
+    player.controller.teleport(spawn.pos.clone().addScaledVector(spawn.pos.clone().normalize(), 0.1), rack.pos.clone().sub(spawn.pos));
+  }
+  player.rig.setHeading(toTangent(player.controller.facing.clone(), player.controller.up));
 
-  const player = new PlayerController(collision, seabed);
-  player.teleport(mapToWorld(62, -3, 4), new THREE.Vector3(1, 0, 0));
-  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.32, 0.4, 4, 8), new THREE.MeshLambertMaterial({ color: '#F3A24B' }));
-  body.position.y = 0.52;
-  body.castShadow = true;
-  const avatar = new THREE.Group();
-  avatar.add(body);
-  game.scene.add(avatar);
+  // ---- the rod on the rack
+  if (state.hasRod) {
+    player.giveRod(game.assets.get('props/rod'));
+  } else {
+    const rackRod = game.assets.get('props/rod');
+    rackRod.position.copy(rack.pos);
+    orientationAt(rack.x, rack.z, rack.rot, rackRod.quaternion);
+    rackRod.rotateX(-0.06);
+    game.scene.add(rackRod);
+    interaction.add({
+      id: 'rod-rack',
+      position: rack.pos,
+      radius: 2.6,
+      label: () => (state.hasRod ? null : T.takeRod),
+      interact: () => {
+        state.hasRod = true;
+        rackRod.parent?.remove(rackRod);
+        player.giveRod(rackRod);
+        interaction.remove('rod-rack');
+        hud.toast(fmt(T.gotRod, { fish: game.input.device === 'gamepad' ? 'RT' : 'F' }), 'good');
+        game.events.emit('rod:taken');
+        saveState(state);
+      },
+    });
+  }
 
-  const wish = new THREE.Vector3();
+  const neighbors = new Neighbors(game, world, player, hud, state, interaction);
+  hud.renderAll();
+  const fishing = new FishingSystem(game, player, hud, state, world.seabed);
+  const markers = new SpotMarkers(world.seabed);
+  game.scene.add(markers.root);
+
+  // ---- saving
+  const persist = () => {
+    const m = worldToMap(player.controller.position);
+    const f = player.controller.facing;
+    state.player = { x: m.x, z: m.z, h: Math.max(m.h, 0), yaw: Math.atan2(f.x, f.z) };
+    saveState(state);
+  };
+  for (const e of ['fish:caught', 'coins:changed', 'request:delivered', 'round:started', 'cooler:changed'] as const) game.events.on(e, persist);
+  setInterval(persist, 5000);
+  addEventListener('beforeunload', persist);
+
   game.add({
     update(dt, time) {
-      const inp = game.input;
-      wish.set(0, 0, 0).addScaledVector(rig.forward, inp.move.y).addScaledVector(rig.right, inp.move.x);
-      player.update({ dir: wish, sprint: inp.held('sprint'), jump: inp.pressed('jump') }, dt);
-      avatar.position.copy(player.position);
-      avatar.quaternion.copy(player.quaternion);
-      rig.update(player.position, inp.look, inp.mouseDelta, dt);
-      env.update(time, player.position, rig.camera, player.up);
+      hud.update();
+      player.lock('menu', hud.menu.isOpen);
+      player.update(dt);
+      const prompting = interaction.update();
+      fishing.update(dt, time, !prompting);
+      neighbors.update(dt);
+      markers.update(time, dt);
+      env.update(time, player.controller.position, player.rig.camera, player.controller.up);
     },
   });
-  void toTangent;
-  void upAt;
-  ui.innerHTML = '';
+
+  if (game.debug) {
+    const { createDebugPanel } = await import('./debug/DebugPanel');
+    createDebugPanel(game, env, state, world);
+  }
+  (window as unknown as Record<string, unknown>).angler = { game, state, player, world, fishing, neighbors, env };
+
   game.start();
-  (window as unknown as { game: unknown }).game = { game, player, rig, seabed, CAMERA_SETTINGS, env };
+
+  if (isNew) {
+    player.lock('intro', true);
+    for (let i = 0; i < T.intro.length; i++) {
+      await hud.menu.open({ title: T.title, text: T.intro[i], options: [{ label: i < T.intro.length - 1 ? 'Weiter' : 'Los geht’s!' }] });
+    }
+    player.lock('intro', false);
+  }
 }
 
-const view = new URLSearchParams(location.search).get("view");
+const view = new URLSearchParams(location.search).get('view');
 if (view) {
-  import("./debug/ModelViewer").then((m) => m.runModelViewer(document.getElementById("game") as HTMLCanvasElement, view));
+  import('./debug/ModelViewer').then((m) => m.runModelViewer(document.getElementById('game') as HTMLCanvasElement, view));
 } else {
-  boot();
+  boot().catch((e) => {
+    console.error(e);
+    document.getElementById('ui')!.innerHTML = `<div class="loading"><div>Fehler beim Laden 😿<small>${String(e)}</small></div></div>`;
+  });
 }

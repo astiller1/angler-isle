@@ -42,6 +42,8 @@ export class Input {
   device: Device = 'keyboard';
 
   private keys = new Set<string>();
+  /** Keys/buttons that went down since the last update — so quick taps are never missed at low frame rates. */
+  private latched = new Set<string>();
   private mouseButtons = new Set<number>();
   private now = new Map<Action, boolean>();
   private prev = new Map<Action, boolean>();
@@ -50,6 +52,7 @@ export class Input {
   constructor(target: HTMLElement) {
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Tab' || e.code === 'Space' || e.code.startsWith('Arrow')) e.preventDefault();
+      if (!e.repeat) this.latched.add(e.code);
       this.keys.add(e.code);
       this.setDevice('keyboard');
     });
@@ -60,6 +63,7 @@ export class Input {
     });
     target.addEventListener('mousedown', (e) => {
       this.mouseButtons.add(e.button);
+      this.latched.add('mouse' + e.button);
       this.setDevice('keyboard');
     });
     window.addEventListener('mouseup', (e) => this.mouseButtons.delete(e.button));
@@ -96,7 +100,9 @@ export class Input {
 
     for (const action of Object.keys(BINDINGS) as Action[]) {
       const b = BINDINGS[action];
-      const k = b.keys.some((c) => this.keys.has(c)) || (b.mouse ?? []).some((m) => this.mouseButtons.has(m));
+      const k =
+        b.keys.some((c) => this.keys.has(c) || this.latched.has(c)) ||
+        (b.mouse ?? []).some((m) => this.mouseButtons.has(m) || this.latched.has('mouse' + m));
       const p = b.pad.some(padDown);
       if (p) padActive = true;
       this.now.set(action, k || p);
@@ -121,6 +127,7 @@ export class Input {
       this.look.y += ry;
     }
     if (this.move.lengthSq() > 1) this.move.normalize();
+    this.latched.clear();
     if (padActive) this.setDevice('gamepad');
   }
 

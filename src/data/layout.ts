@@ -34,7 +34,7 @@ export const SCATTER: ScatterRule[] = [
   { models: ['vegetation/jungle_tree'], count: 55, area: { x: -18, z: -22, r: 36 }, minH: 4, maxH: 30, maxSlope: 0.9, scale: [0.8, 1.3], spacing: 5, pathMargin: 2, collide: true, seed: 3 },
   { models: ['vegetation/jungle_tree', 'vegetation/palm_c'], count: 18, area: { x: -45, z: -50, r: 20 }, minH: 2, maxH: 30, scale: [0.8, 1.1], spacing: 5, pathMargin: 2, collide: true, seed: 4 },
   { models: ['vegetation/bush_a', 'vegetation/bush_b'], count: 130, area: ISLAND, minH: 0.9, maxH: 25, maxSlope: 0.8, scale: [0.7, 1.2], spacing: 3, pathMargin: 1.5, collide: true, seed: 5 },
-  { models: ['vegetation/flowers'], count: 160, area: ISLAND, minH: 1.0, maxH: 12, maxSlope: 0.5, scale: [0.8, 1.3], spacing: 2, pathMargin: 1.2, collide: false, seed: 6 },
+  { models: ['vegetation/flowers'], count: 130, area: ISLAND, minH: 1.0, maxH: 12, maxSlope: 0.5, scale: [0.8, 1.3], spacing: 2, pathMargin: 1.2, collide: false, seed: 6 },
   { models: ['vegetation/grass'], count: 420, area: ISLAND, minH: 0.9, maxH: 25, maxSlope: 0.8, scale: [0.8, 1.6], spacing: 1.2, pathMargin: 1.0, collide: false, seed: 7 },
   { models: ['vegetation/mangrove'], count: 30, area: { x: -104, z: 10, r: 26 }, minH: -0.8, maxH: 0.4, scale: [0.85, 1.2], spacing: 4.5, pathMargin: 1, sink: 0.1, collide: true, seed: 8 },
   { models: ['rocks/rock_c'], count: 30, area: { x: 8, z: -90, r: 45 }, minH: -2.5, maxH: 2.5, scale: [0.7, 1.3], spacing: 5, pathMargin: 3, sink: 0.6, collide: true, seed: 9 },

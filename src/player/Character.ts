@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { findNode } from '../core/Assets';
 
 export type Pose =
-  | 'idle' | 'walk' | 'run' | 'jump' | 'swim'
+  | 'idle' | 'stand' | 'walk' | 'run' | 'jump' | 'swim'
   | 'charge' | 'cast' | 'fishing' | 'reel' | 'hold'
   | 'sit' | 'lie' | 'talk' | 'wave' | 'celebrate';
 

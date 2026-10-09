@@ -54,8 +54,13 @@ export class Game {
     this.renderer.setAnimationLoop(() => this.frame());
   }
 
-  private frame(): void {
-    const dt = Math.min(this.clock.getDelta(), 1 / 20);
+  /** Debug/testing: advance n frames synchronously with a fixed dt (works while the tab is throttled). */
+  step(n = 1, dt = 1 / 60): void {
+    for (let i = 0; i < n; i++) this.frame(dt);
+  }
+
+  private frame(fixedDt?: number): void {
+    const dt = fixedDt ?? Math.min(this.clock.getDelta(), 1 / 20);
     this.time += dt;
     this.input.update();
     for (const s of this.systems) s.update(dt, this.time);
