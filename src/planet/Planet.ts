@@ -82,23 +82,29 @@ export function toTangent(v: THREE.Vector3, up: THREE.Vector3): THREE.Vector3 {
   return v.normalize();
 }
 
+/** Rotate a local (x, z) offset by yaw (same convention as orientationAt). */
+export function rotateLocal(lx: number, lz: number, yawDeg: number): [number, number] {
+  const yaw = THREE.MathUtils.degToRad(yawDeg);
+  const c = Math.cos(yaw);
+  const s = Math.sin(yaw);
+  return [lx * c + lz * s, -lx * s + lz * c];
+}
+
+/** Map a model-local point to its bent world position (see bendGeometry). */
+export function bendPoint(local: THREE.Vector3, x: number, z: number, yawDeg: number, baseH: number, out = new THREE.Vector3()): THREE.Vector3 {
+  const [dx, dz] = rotateLocal(local.x, local.z, yawDeg);
+  return mapToWorld(x + dx, z + dz, baseH + local.y, out);
+}
+
 /**
  * Bend a model's geometry onto the planet: local (lx, ly, lz) -> map (x, z) offset rotated by yaw,
  * height = baseH + ly. Used for static props so long structures (piers) follow the curvature.
  */
 export function bendGeometry(geom: THREE.BufferGeometry, x: number, z: number, yawDeg: number, baseH: number): void {
   const pos = geom.getAttribute('position') as THREE.BufferAttribute;
-  const yaw = THREE.MathUtils.degToRad(yawDeg);
-  const c = Math.cos(yaw);
-  const s = Math.sin(yaw);
   const v = new THREE.Vector3();
   for (let i = 0; i < pos.count; i++) {
-    const lx = pos.getX(i);
-    const ly = pos.getY(i);
-    const lz = pos.getZ(i);
-    const dx = lx * c + lz * s;
-    const dz = -lx * s + lz * c;
-    mapToWorld(x + dx, z + dz, baseH + ly, v);
+    bendPoint(v.fromBufferAttribute(pos, i), x, z, yawDeg, baseH, v);
     pos.setXYZ(i, v.x, v.y, v.z);
   }
   pos.needsUpdate = true;
