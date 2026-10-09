@@ -17,9 +17,9 @@ export class Assets {
     return Object.keys(KEYED);
   }
 
-  async loadAll(onProgress?: (done: number, total: number) => void): Promise<void> {
+  async loadAll(onProgress?: (done: number, total: number) => void, filter?: (key: string) => boolean): Promise<void> {
     const loader = new GLTFLoader();
-    const keys = Assets.keys();
+    const keys = Assets.keys().filter((k) => !filter || filter(k));
     let done = 0;
     await Promise.all(
       keys.map(async (key) => {

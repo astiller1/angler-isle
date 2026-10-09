@@ -58,4 +58,9 @@ async function boot() {
   (window as unknown as { game: unknown }).game = { game, player, rig, seabed, CAMERA_SETTINGS, env };
 }
 
-boot();
+const view = new URLSearchParams(location.search).get("view");
+if (view) {
+  import("./debug/ModelViewer").then((m) => m.runModelViewer(document.getElementById("game") as HTMLCanvasElement, view));
+} else {
+  boot();
+}
