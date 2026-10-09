@@ -97,6 +97,59 @@ export function bendPoint(local: THREE.Vector3, x: number, z: number, yawDeg: nu
 }
 
 /**
+ * Split triangles until no edge is longer than `maxLen`, so long flat pieces (pier rails, big
+ * collision boxes) follow the curvature when bent instead of sagging between their corners.
+ * Returns a non-indexed geometry; all attributes are interpolated linearly.
+ */
+export function tessellate(src: THREE.BufferGeometry, maxLen: number): THREE.BufferGeometry {
+  const g = src.index ? src.toNonIndexed() : src;
+  const pos = g.getAttribute('position');
+  const names = Object.keys(g.attributes);
+  const attrs = names.map((n) => g.getAttribute(n) as THREE.BufferAttribute);
+  const out: number[][] = names.map(() => []);
+  const max2 = maxLen * maxLen;
+  type Vtx = number[][]; // per attribute: values
+  const read = (i: number): Vtx => attrs.map((a) => Array.from({ length: a.itemSize }, (_, k) => a.array[i * a.itemSize + k] as number));
+  const mid = (a: Vtx, b: Vtx): Vtx => a.map((arr, j) => arr.map((v, k) => (v + b[j][k]) / 2));
+  const d2 = (a: Vtx, b: Vtx) => {
+    const p = a[names.indexOf('position')];
+    const q = b[names.indexOf('position')];
+    return (p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2 + (p[2] - q[2]) ** 2;
+  };
+  const emit = (t: Vtx[]) => t.forEach((v) => v.forEach((vals, j) => out[j].push(...vals)));
+  const stack: Vtx[][] = [];
+  for (let i = 0; i < pos.count; i += 3) stack.push([read(i), read(i + 1), read(i + 2)]);
+  let guard = 0;
+  while (stack.length) {
+    const [a, b, c] = stack.pop()!;
+    const ab = d2(a, b);
+    const bc = d2(b, c);
+    const ca = d2(c, a);
+    const m = Math.max(ab, bc, ca);
+    if (m <= max2 || ++guard > 2e6) {
+      emit([a, b, c]);
+      continue;
+    }
+    if (m === ab) {
+      const p = mid(a, b);
+      stack.push([a, p, c], [p, b, c]);
+    } else if (m === bc) {
+      const p = mid(b, c);
+      stack.push([a, b, p], [a, p, c]);
+    } else {
+      const p = mid(c, a);
+      stack.push([a, b, p], [p, b, c]);
+    }
+  }
+  const res = new THREE.BufferGeometry();
+  names.forEach((n, j) => {
+    const a = attrs[j];
+    res.setAttribute(n, new THREE.BufferAttribute(new Float32Array(out[j]), a.itemSize, false));
+  });
+  return res;
+}
+
+/**
  * Bend a model's geometry onto the planet: local (lx, ly, lz) -> map (x, z) offset rotated by yaw,
  * height = baseH + ly. Used for static props so long structures (piers) follow the curvature.
  */

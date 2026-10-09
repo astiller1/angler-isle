@@ -9,7 +9,7 @@ export const WATER_SETTINGS = {
   foam: '#FFFFFF',
   waveHeight: 0.12,
   waveSpeed: 1.0,
-  foamWidth: 0.55,
+  foamWidth: 0.28,
 };
 
 /**
@@ -189,7 +189,7 @@ void main() {
   // shoreline foam: solid edge + moving bands
   float fn = noise(m * 0.8 + t * 0.15);
   float edge = 1.0 - smoothstep(0.0, uFoamWidth, depth + (fn - 0.5) * 0.25);
-  float bands = smoothstep(0.75, 0.95, sin(depth * 5.0 - t * 1.6 + fn * 2.0)) * (1.0 - smoothstep(0.3, 1.6, depth));
+  float bands = smoothstep(0.8, 0.97, sin(depth * 5.0 - t * 1.6 + fn * 2.0)) * smoothstep(0.1, 0.35, depth) * (1.0 - smoothstep(0.6, 1.8, depth));
   float foam = clamp(edge + bands * 0.7, 0.0, 1.0) * step(-19.0, bed);
   col = mix(col, uFoam, foam * 0.85);
 

@@ -3,10 +3,10 @@ import { MeshBVH } from 'three-mesh-bvh';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import shape from '../../art/terrain/island_shape.json';
 import { paletteMaterial, type Assets } from '../core/Assets';
-import { bendGeometry, bendPoint, mapToWorld, orientationAt, rotateLocal } from '../planet/Planet';
+import { bendGeometry, bendPoint, mapToWorld, orientationAt, rotateLocal, tessellate } from '../planet/Planet';
 import { PLACEMENTS, SCATTER } from '../data/layout';
 import type { Placement, ScatterRule } from '../data/types';
-import { Collision } from './Collision';
+import { Collision, isCollisionName } from './Collision';
 import { Seabed } from './Seabed';
 
 export interface AnchorInfo {
@@ -116,15 +116,22 @@ export class World {
       }
       const m = o as THREE.Mesh;
       if (!m.isMesh) return;
-      const g = m.geometry.clone();
+      let g = m.geometry.clone();
       g.applyMatrix4(m.matrixWorld);
       g.computeBoundingBox();
-      if (!m.name.startsWith('COL_')) box.union(g.boundingBox!);
+      // long pieces must be subdivided so they follow the planet's curvature once bent
+      const size = g.boundingBox!.getSize(new THREE.Vector3());
+      if (Math.max(size.x, size.z) > 4) {
+        g = tessellate(g, isCollisionName(m.name) ? 2 : 3);
+        g.computeBoundingBox();
+      }
+      const isCol = isCollisionName(m.name);
+      if (!isCol) box.union(g.boundingBox!);
       bendGeometry(g, p.x, p.z, rot, baseH);
-      if (m.name.startsWith('COL_')) this.collision.addGeometry(g);
+      if (isCol) this.collision.addGeometry(g, undefined, m.name.startsWith('COL_'));
       else {
         for (const k of Object.keys(g.attributes)) if (!['position', 'normal', 'color'].includes(k)) g.deleteAttribute(k);
-        out.push(g);
+        out.push(g.index ? g.toNonIndexed() : g);
       }
     });
     if (!box.isEmpty()) this.footprints.push({ x: p.x, z: p.z, rot, min: new THREE.Vector2(box.min.x, box.min.z), max: new THREE.Vector2(box.max.x, box.max.z) });
@@ -205,8 +212,8 @@ export class World {
         const m = o as THREE.Mesh;
         if (!m.isMesh) return;
         const g = m.geometry.clone().applyMatrix4(m.matrixWorld);
-        if (m.name.startsWith('COL_')) {
-          if (rule.collide) for (const M of matrices) this.collision.addGeometry(g, M);
+        if (isCollisionName(m.name)) {
+          if (rule.collide) for (const M of matrices) this.collision.addGeometry(g, M, m.name.startsWith('COL_'));
           return;
         }
         const inst = new THREE.InstancedMesh(g, paletteMaterial, matrices.length);

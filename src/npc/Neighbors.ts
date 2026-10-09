@@ -17,6 +17,8 @@ import { deliver, matchingFish, reservedFish, startRound, type RequestContext } 
 
 /** Per-character display scale (models are authored roughly the same size). */
 const SCALE: Record<string, number> = { walter: 1.2, bruno: 1.4, fritzi: 1.0, pelle: 1.3 };
+/** Standing on a little box behind a counter (m). */
+const LIFT: Record<string, number> = { bruno: 0.15, pelle: 0.45 };
 
 interface Npc {
   id: string;
@@ -101,6 +103,7 @@ export class Neighbors {
       char.model.position.set(-0.45 * s, 0.05, 0);
     }
     if (pose === 'sit') char.model.position.y = 0.05;
+    if (LIFT[id]) char.model.position.y = LIFT[id];
     this.game.scene.add(char.root);
     const tag = document.createElement('div');
     tag.className = 'nametag';

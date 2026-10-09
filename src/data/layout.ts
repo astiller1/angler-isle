@@ -6,7 +6,7 @@ import type { Placement, ScatterRule } from './types';
  * Terrain shape itself lives in art/terrain/island_shape.json.
  */
 
-/** Deck height of the harbor (dock, pier, shack). Matches the village pad in island_shape.json. */
+/** Deck height of the harbor (dock, pier, shack): 0.2 m above the village pad in island_shape.json (a step the player can climb). */
 export const HARBOR_H = 2.2;
 
 export const PLACEMENTS: Placement[] = [
@@ -15,11 +15,20 @@ export const PLACEMENTS: Placement[] = [
   { model: 'buildings/pier', x: 96, z: -3, rot: 90, h: HARBOR_H },
   { model: 'buildings/tackle_shack', x: 90, z: 8, rot: 270, h: HARBOR_H },
   { model: 'buildings/trader_stall', x: 89, z: -13, rot: 270, h: HARBOR_H },
-  // Village
-  { model: 'buildings/stilt_house_a', x: 66, z: -27, rot: 0, h: 'ground' },
-  { model: 'buildings/stilt_house_b', x: 58, z: 19, rot: 180, h: 'ground' },
-  { model: 'buildings/stilt_house_c', x: 74, z: 31, rot: 235, h: 'ground' },
-  { model: 'buildings/stilt_house_d', x: 45, z: -21, rot: 60, h: 'ground' },
+  // Village street (z = -3) between the plaza and the dock
+  { model: 'buildings/stilt_house_a', x: 71, z: -14.5, rot: 0, h: 'ground' },
+  { model: 'buildings/stilt_house_b', x: 72, z: 9.5, rot: 180, h: 'ground' },
+  { model: 'buildings/stilt_house_c', x: 58, z: -14.5, rot: 0, h: 'ground' },
+  { model: 'buildings/stilt_house_d', x: 58.5, z: 9.5, rot: 180, h: 'ground' },
+  { model: 'props/lantern', x: 64.5, z: -5.2, rot: 0, h: 'ground' },
+  { model: 'props/lantern', x: 78, z: -0.8, rot: 180, h: 'ground' },
+  { model: 'props/lantern', x: 52, z: -0.8, rot: 180, h: 'ground' },
+  { model: 'props/bench', x: 65, z: -0.4, rot: 180, h: 'ground' },
+  { model: 'props/bench', x: 50.5, z: -6, rot: 0, h: 'ground' },
+  { model: 'props/flower_bed', x: 78.5, z: -6.2, rot: 0, h: 'ground' },
+  { model: 'props/flower_bed', x: 51, z: 1.5, rot: 0, h: 'ground' },
+  { model: 'props/crates', x: 81, z: 2.5, rot: 20, h: 'ground' },
+  { model: 'props/crates', x: 47, z: -11, rot: 110, h: 'ground' },
   // Beach, mangroves
   { model: 'buildings/beach_shack', x: 22, z: 72, rot: 200, h: 'ground' },
   { model: 'buildings/hammock', x: -70, z: 29, rot: 30, h: 'ground' },
@@ -40,6 +49,7 @@ export const SCATTER: ScatterRule[] = [
   { models: ['rocks/rock_c'], count: 30, area: { x: 8, z: -90, r: 45 }, minH: -2.5, maxH: 2.5, scale: [0.7, 1.3], spacing: 5, pathMargin: 3, sink: 0.6, collide: true, seed: 9 },
   { models: ['rocks/rock_c', 'rocks/rock_a'], count: 14, area: { x: 50, z: -76, r: 25 }, minH: -2.5, maxH: 3, scale: [0.6, 1.1], spacing: 4, pathMargin: 2, sink: 0.4, collide: true, seed: 10 },
   { models: ['rocks/rock_a'], count: 60, area: ISLAND, minH: -1.2, maxH: 1.2, scale: [0.6, 1.3], spacing: 6, pathMargin: 2, sink: 0.25, collide: true, seed: 11 },
+  { models: ['rocks/rock_a', 'rocks/rock_b', 'rocks/rock_c'], count: 22, area: { x: 5, z: -86, r: 40 }, minH: 2, maxH: 10, scale: [0.5, 1.0], spacing: 4, pathMargin: 2, sink: 0.3, collide: true, seed: 14 },
   { models: ['rocks/rock_b'], count: 14, area: { x: 6, z: -94, r: 26 }, minH: -0.6, maxH: 4, scale: [0.9, 1.3], spacing: 4, pathMargin: 2, sink: 0.2, collide: true, seed: 12 },
   { models: ['rocks/pebble'], count: 90, area: ISLAND, minH: 0.2, maxH: 3, scale: [0.8, 1.6], spacing: 2.5, pathMargin: 0.5, collide: false, seed: 13 },
 ];

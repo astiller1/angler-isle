@@ -25,6 +25,7 @@ def build():
     # scale on the counter
     b.mb.cyl(0.18, 0.05, (1.25, -0.75, 1.22), color="metal", seg=10)
     b.mb.box((0.06, 0.06, 0.3), (1.25, -0.75, 1.36), color="metal")
+    b.mb.box((0.9, 0.7, 0.45), (0, 0.55, 0.22), color="crate")  # Pelle stands on this box
     empty("ANCHOR_trader", (0, 0.55, 0))
     b.finish("trader_stall")
 

@@ -57,7 +57,7 @@ export class FishingSystem {
     private seabed: Seabed,
   ) {
     this.bobber = game.assets.get('props/bobber');
-    this.bobber.scale.setScalar(1.6);
+    this.bobber.scale.setScalar(2.6);
     this.bobber.visible = false;
     game.scene.add(this.bobber);
     this.linePos = new Float32Array(LINE_POINTS * 3);

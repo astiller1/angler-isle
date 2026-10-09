@@ -134,8 +134,12 @@ def color_for(x, z, h, info, slope):
     n = vnoise(x, z, 0.12, 7)
     if h < -0.05:
         return mix("seabed", "seabed_deep", smoothstep(0.4, 6.0, -h))
-    if info["cliff"] > 0.35 and (slope > 0.45 or h > 1.5):
+    if info["cliff"] > 0.35 and slope > 0.45:
         return mix("rock", "rock_light", 0.5 + n * 0.5)
+    if info["cliff"] > 0.35 and h > 1.5:
+        # cliff tops: patchy grass with rocky outcrops
+        n2 = vnoise(x, z, 0.22, 11)
+        return mix("grass_dark", "rock_light", smoothstep(-0.1, 0.25, n2 + (info["cliff"] - 0.6)))
     if slope > 0.9:
         return mix("rock_dark", "rock", 0.5 + n * 0.5)
     sandy = h < 0.9 + n * 0.25 or (info["beach"] > 0.35 and h < 2.4 + n * 0.3)

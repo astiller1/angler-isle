@@ -39,7 +39,7 @@ export async function runModelViewer(canvas: HTMLCanvasElement, key: string): Pr
   });
   scene.add(group);
   const colMeshes: THREE.Object3D[] = [];
-  group.traverse((o) => o.name.startsWith('COL_') && colMeshes.push(o));
+  group.traverse((o) => /^COLP?_/.test(o.name) && colMeshes.push(o));
   const colMat = new THREE.MeshBasicMaterial({ color: 0xff00ff, wireframe: true });
   colMeshes.forEach((o) => {
     (o as THREE.Mesh).material = colMat;

@@ -45,7 +45,7 @@ def palm(seed=1, height=6.0, lean=1.0, leaves=8, coconuts=3, name="palm"):
     o = obj_from(mb, name)
     cb = MB()
     cb.cyl(0.28, 3.0, (lean * 0.1, 0, 1.5), color="col", seg=6)
-    obj_from(cb, "COL_" + name)
+    obj_from(cb, "COLP_" + name)
     return o
 
 
@@ -79,7 +79,7 @@ def jungle_tree(seed=1, height=5.5, name="jungle_tree"):
     o = obj_from(mb, name)
     cb = MB()
     cb.cyl(0.35, 3.0, (0, 0, 1.5), color="col", seg=6)
-    obj_from(cb, "COL_" + name)
+    obj_from(cb, "COLP_" + name)
     return o
 
 
@@ -102,7 +102,7 @@ def mangrove(seed=1, name="mangrove"):
     o = obj_from(mb, name)
     cb = MB()
     cb.cyl(0.9, 2.0, (0, 0, 0.6), color="col", seg=6)
-    obj_from(cb, "COL_" + name)
+    obj_from(cb, "COLP_" + name)
     return o
 
 

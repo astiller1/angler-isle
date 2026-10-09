@@ -13,19 +13,21 @@ from palette import mix
 class B:
     def __init__(self, seed=1):
         self.mb = MB()
-        self.cb = MB()
+        self.cb = MB()   # solid: blocks the player and the camera
+        self.pb = MB()   # player-only: railings, posts, trunks (the camera may pass)
         self.r = rng(seed)
 
     # ------------------------------------------------------------------ collision
-    def col(self, size, loc, rot=(0, 0, 0)):
-        self.cb.box(size, loc, rot, color="col")
+    def col(self, size, loc, rot=(0, 0, 0), player_only=False):
+        (self.pb if player_only else self.cb).box(size, loc, rot, color="col")
 
     def finish(self, name, origin=(0, 0, 0)):
         o = obj_from(self.mb, name, origin=origin)
-        if len(self.cb.bm.verts):
-            obj_from(self.cb, "COL_" + name, origin=origin)
-        else:
-            self.cb.bm.free()
+        for builder, prefix in ((self.cb, "COL_"), (self.pb, "COLP_")):
+            if len(builder.bm.verts):
+                obj_from(builder, prefix + name, origin=origin)
+            else:
+                builder.bm.free()
         return o
 
     # ------------------------------------------------------------------ wood
@@ -50,7 +52,7 @@ class B:
     def post(self, x, y, z_top, z_bottom, r=0.12, color="wood_dark", collide=False):
         self.mb.cyl(r, z_top - z_bottom, (x, y, (z_top + z_bottom) / 2), color=color, seg=6)
         if collide:
-            self.col((r * 2, r * 2, z_top - z_bottom), (x, y, (z_top + z_bottom) / 2))
+            self.col((r * 2, r * 2, z_top - z_bottom), (x, y, (z_top + z_bottom) / 2), player_only=True)
 
     def stilts(self, x0, x1, y0, y1, z_top, z_bottom=-6.0, spacing=3.0, r=0.13):
         nx = max(1, round((x1 - x0) / spacing))
@@ -74,7 +76,7 @@ class B:
             self.mb.box((length + 0.1, 0.12, 0.07), (cx, cy, z + h), rot=(0, 0, ang), color="wood_light")
             self.mb.box((length, 0.06, 0.06), (cx, cy, z + h * 0.5), rot=(0, 0, ang), color=color)
         if collide:
-            self.col((length, 0.2, 1.4), (cx, cy, z + 0.7), rot=(0, 0, ang))
+            self.col((length, 0.2, 1.4), (cx, cy, z + 0.7), rot=(0, 0, ang), player_only=True)
 
     def stairs(self, x, y, z_bottom, z_top, direction, width=1.2, step_rise=0.2, color="plank", rails=True):
         """Straight stairs going UP along `direction` ((1,0),(0,1),...) starting at (x, y, z_bottom)."""
@@ -113,10 +115,10 @@ class B:
                 self.mb.box((0.08, 0.08, 0.95), (p1[0], p1[1], z_top + 0.47), color="wood")
                 if dx:
                     self.mb.box((L, 0.08, 0.08), ((p0[0] + p1[0]) / 2, p0[1], z_bottom + rise / 2 + 0.92), rot=(0, -ang * dx, 0), color="wood_light")
-                    self.col((L, 0.15, 1.2), ((p0[0] + p1[0]) / 2, p0[1], z_bottom + rise / 2 + 0.6), rot=(0, -ang * dx, 0))
+                    self.col((L, 0.15, 1.2), ((p0[0] + p1[0]) / 2, p0[1], z_bottom + rise / 2 + 0.6), rot=(0, -ang * dx, 0), player_only=True)
                 else:
                     self.mb.box((0.08, L, 0.08), (p0[0], (p0[1] + p1[1]) / 2, z_bottom + rise / 2 + 0.92), rot=(ang * dy, 0, 0), color="wood_light")
-                    self.col((0.15, L, 1.2), (p0[0], (p0[1] + p1[1]) / 2, z_bottom + rise / 2 + 0.6), rot=(ang * dy, 0, 0))
+                    self.col((0.15, L, 1.2), (p0[0], (p0[1] + p1[1]) / 2, z_bottom + rise / 2 + 0.6), rot=(ang * dy, 0, 0), player_only=True)
         return run_len
 
     # ------------------------------------------------------------------ walls & roofs
@@ -219,12 +221,12 @@ class B:
         self.mb.box((0.35, 0.05, 0.05), (x + 0.15, y, z + h), color="wood_dark")
         self.mb.box((0.18, 0.18, 0.24), (x + 0.3, y, z + h - 0.18), color="flower_yellow")
         self.mb.cyl(0.13, 0.06, (x + 0.3, y, z + h - 0.03), color="black", seg=4, r2=0.02)
-        self.col((0.15, 0.15, h), (x, y, z + h / 2))
+        self.col((0.15, 0.15, h), (x, y, z + h / 2), player_only=True)
 
     def bollard(self, x, y, z):
         self.mb.cyl(0.14, 0.4, (x, y, z + 0.2), color="black", seg=8)
         self.mb.cyl(0.18, 0.06, (x, y, z + 0.42), color="black", seg=8)
-        self.col((0.3, 0.3, 0.5), (x, y, z + 0.25))
+        self.col((0.3, 0.3, 0.5), (x, y, z + 0.25), player_only=True)
 
     def flower_box(self, x, y, z, w=1.0, axis="x"):
         size = (w, 0.22, 0.2) if axis == "x" else (0.22, w, 0.2)

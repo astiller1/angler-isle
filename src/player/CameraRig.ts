@@ -64,7 +64,7 @@ export class CameraRig {
 
     // spring arm: shorten when something is between pivot and camera
     let want = S.distance;
-    const hit = this.collision.raycast(this.pivot, this.dir, S.distance + 0.3);
+    const hit = this.collision.raycast(this.pivot, this.dir, S.distance + 0.3, true);
     if (hit) want = Math.max(S.minDistance, hit.distance - 0.35);
     this.distance = want < this.distance ? want : THREE.MathUtils.lerp(this.distance, want, 1 - Math.exp(-dt * 4));
 

@@ -4,7 +4,7 @@ Conventions
 - Every model is built from code in its own script and exported to a .glb next to it.
 - All geometry uses ONE material ("Palette") whose colour comes from the "Col" vertex colour attribute.
 - Characters, fish and props face Blender -Y (the "front" view). In three.js that becomes +Z.
-- Objects named COL_* are collision proxies: hidden in game, merged into the collision world.
+- Objects named COL_* are solid collision proxies (block player + camera); COLP_* block only the player.
 - Empties named ANCHOR_* / SLOT_* mark attachment points read by the game.
 
 Usage inside an art script:

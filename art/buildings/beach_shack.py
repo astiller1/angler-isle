@@ -8,8 +8,8 @@ def build():
     b = B(13)
     b.deck(-2.5, 2.5, -1.8, 1.8, 0.25, along="x", color="wood_light")
     b.stilts(-2.5, 2.5, -1.8, 1.8, 0.25, -1.0, spacing=2.5, r=0.1)
-    b.mb.box((4.4, 0.7, 1.0), (0, -1.3, 0.75), color="wall_yellow")
-    b.mb.box((4.6, 0.85, 0.08), (0, -1.3, 1.28), color="wood")
+    b.mb.box((4.4, 0.7, 0.75), (0, -1.3, 0.62), color="wall_yellow")
+    b.mb.box((4.6, 0.85, 0.08), (0, -1.3, 1.02), color="wood")
     b.col((4.4, 0.7, 1.4), (0, -1.3, 0.75))
     b.wall(-2.5, 2.5, 0.25, 2.6, axis="x", at=1.7, color="wall_white", openings=[(-1.2, 1.2, 1.3, 2.0)])
     for px, py in ((-2.4, -1.7), (2.4, -1.7)):
@@ -30,8 +30,8 @@ def build():
     for k in range(3):
         b.mb.sphere(0.07, (1.45 + k * 0.15, 0.9, 1.22), scale=(1, 2, 0.6), color="#E2483F", seg=6, rings=4)
     # pots on the counter
-    b.mb.cyl(0.2, 0.3, (-1.2, -1.3, 1.47), color="metal", seg=10)
-    b.mb.cyl(0.14, 0.2, (-0.5, -1.3, 1.42), color="roof_red", seg=10)
+    b.mb.cyl(0.2, 0.3, (-1.2, -1.3, 1.21), color="metal", seg=10)
+    b.mb.cyl(0.14, 0.2, (1.3, -1.3, 1.16), color="roof_red", seg=10)
     b.sign("Brunos Strandküche", 0, -2.42, 2.3, w=3.4, h=0.45, size=0.24)
     # tables + stools in the sand in front
     for tx in (-1.8, 1.8):

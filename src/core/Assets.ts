@@ -61,7 +61,7 @@ export class Assets {
 export function extractCollision(root: THREE.Object3D): THREE.Mesh[] {
   const cols: THREE.Mesh[] = [];
   root.traverse((o) => {
-    if (o.name.startsWith('COL_') && (o as THREE.Mesh).isMesh) cols.push(o as THREE.Mesh);
+    if (/^COLP?_/.test(o.name) && (o as THREE.Mesh).isMesh) cols.push(o as THREE.Mesh);
   });
   for (const c of cols) c.parent?.remove(c);
   return cols;
