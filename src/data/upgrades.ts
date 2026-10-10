@@ -13,6 +13,7 @@ export interface RodTier {
   /** Reel speed multiplier. */
   reelSpeed: number;
   model: string;
+  description: string;
 }
 
 export interface CoolerTier {
@@ -33,10 +34,14 @@ export interface BaitDef {
   biteSpeed: number;
 }
 
+/** Rod progression: the starter rod is free; each next tier must be bought in order at the tackle shop. */
 export const RODS: RodTier[] = [
-  { tier: 1, name: 'Bambusrute', price: 0, castMax: 15, tensionLimit: 1.0, reelSpeed: 1.0, model: 'props/rod' },
-  { tier: 2, name: 'Glasfaserrute', price: 180, castMax: 20, tensionLimit: 1.3, reelSpeed: 1.2, model: 'props/rod' },
-  { tier: 3, name: 'Karbon-Profirute', price: 450, castMax: 26, tensionLimit: 1.7, reelSpeed: 1.4, model: 'props/rod' },
+  { tier: 1, name: 'Bambusrute', price: 0, castMax: 15, tensionLimit: 1.0, reelSpeed: 1.0, model: 'props/rod',
+    description: 'Leicht und ehrlich. Reicht für die meisten Fische am Ufer.' },
+  { tier: 2, name: 'Glasfaserrute', price: 180, castMax: 20, tensionLimit: 1.3, reelSpeed: 1.2, model: 'props/rod_glass',
+    description: 'Weiter werfen, mehr aushalten. Damit hält die Schnur auch einem Tarpun stand.' },
+  { tier: 3, name: 'Karbon-Profirute', price: 450, castMax: 26, tensionLimit: 1.7, reelSpeed: 1.4, model: 'props/rod_carbon',
+    description: 'Für echte Profis: riesige Wurfweite, kaum zu zerreißen, blitzschnell eingeholt.' },
 ];
 
 export const COOLERS: CoolerTier[] = [

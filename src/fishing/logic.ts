@@ -23,6 +23,8 @@ export const FISHING = {
   slackLevel: 0.08,
   /** Danger zone starts at this fraction of the limit (UI). */
   dangerFrom: 0.8,
+  /** Line-out limit (relative to the cast) when a fish is too strong for the rod. */
+  lineOut: 1.25,
 };
 
 export type Rng = () => number;
@@ -70,13 +72,16 @@ export interface Fight {
   burstLeft: number;
   phase: number;
   time: number;
+  /** The rod is below the fish's minRodTier: it never tires and strips line until it runs out. */
+  overpowered: boolean;
 }
 
 export function startFight(fish: FishDef, weight: number, rod: RodTier, rng: Rng): Fight {
   const wt = fish.weight[1] > fish.weight[0] ? (weight - fish.weight[0]) / (fish.weight[1] - fish.weight[0]) : 0.5;
+  const overpowered = fish.minRodTier > rod.tier;
   let strength = fish.fight.strength * (0.8 + 0.4 * wt);
-  if (fish.minRodTier > rod.tier) strength *= 1.6; // too strong for this rod
-  return { fish, weight, strength, stamina: 1, distance: 1, tension: 0.2, overTime: 0, slackTime: 0, burstLeft: 0, phase: rng() * 6, time: 0 };
+  if (overpowered) strength *= 1.3;
+  return { fish, weight, strength, stamina: 1, distance: 1, tension: 0.2, overTime: 0, slackTime: 0, burstLeft: 0, phase: rng() * 6, time: 0, overpowered };
 }
 
 export type FightResult = 'fighting' | 'landed' | 'snap' | 'slack';
@@ -90,20 +95,24 @@ export function stepFight(f: Fight, reeling: boolean, rod: RodTier, dt: number, 
   else if (rng() < f.fish.fight.burst * 0.35 * dt * (0.4 + 0.6 * f.stamina)) f.burstLeft = 0.6 + rng() * 0.7;
   const wave = 0.55 + 0.45 * Math.sin(f.time * 1.7 + f.phase);
   let pull = f.strength * wave * (0.35 + 0.65 * f.stamina);
-  if (f.burstLeft > 0) pull += 0.55 * f.strength;
+  if (f.burstLeft > 0) pull += 0.7 * f.strength;
 
   // tension follows reel effort + fish pull
-  const target = reeling ? 0.3 + pull * 0.95 : pull * 0.3;
+  const target = reeling ? 0.3 + pull : pull * 0.3;
   f.tension += (target - f.tension) * Math.min(1, F.tensionResponse * dt);
 
   // stamina drains faster under tension
-  const drain = (0.05 + f.tension * 0.12) / (0.5 + f.fish.fight.stamina);
+  const drain = f.overpowered ? 0 : (0.03 + f.tension * 0.09) / (0.5 + f.fish.fight.stamina);
   f.stamina = Math.max(0, f.stamina - drain * dt);
 
   // line distance
-  if (reeling) f.distance -= F.reelRate * rod.reelSpeed * (1 - Math.min(0.8, pull * 0.55)) * dt;
-  else f.distance += pull * 0.05 * dt;
-  f.distance = Math.min(1, f.distance);
+  if (reeling) f.distance -= F.reelRate * rod.reelSpeed * (1 - Math.min(0.85, pull * 0.8)) * dt;
+  else f.distance += pull * (f.overpowered ? 0.18 : 0.05) * dt;
+  if (f.overpowered) {
+    // the fish runs and the line runs out
+    f.distance += pull * 0.06 * dt;
+    if (f.distance > FISHING.lineOut) return 'snap';
+  } else f.distance = Math.min(1, f.distance);
 
   if (f.tension > rod.tensionLimit) f.overTime += dt;
   else f.overTime = Math.max(0, f.overTime - dt * 0.5);

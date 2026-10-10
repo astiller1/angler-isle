@@ -56,13 +56,21 @@ no physics engine — "up" changes across the planet). Plain DOM/CSS HUD. Vitest
 - `src/player/` — `PlayerController` (capsule vs BVH, radial gravity, movement modes — `OnFoot` now, `InBoat`
   later), `CameraRig` (orbit in the player's tangent frame, parallel-transported reference, gentle auto-follow),
   `Character` (procedural pose animation of named model parts), `Player` (glues body, cat, rod, cooler, camera).
-- `src/fishing/` — `logic.ts` is a pure, unit-tested state machine + tension model; `FishingSystem.ts` does visuals.
+- `src/fishing/` — `logic.ts` is a pure, unit-tested state machine + tension model (a fish whose
+  `minRodTier` is above the rod never tires and strips the line); `FishingSystem.ts` does visuals.
+- `src/world/Environment.ts` — day–night cycle: one directional light follows the sun by day and the moon
+  by night; sky/fog/water/ambient colors interpolate `SKY_KEYS` (`data/daycycle.ts`). Lantern glows come
+  from `GLOW_*` empties in the models.
+- `src/economy/` — `shop.ts` (pure rod-upgrade rules), `ShopSystem.ts` (Rocco + menu), `trader.ts`.
+- Movement: surfaces with normal·up > `PLAYER_SETTINGS.walkable` count as ground and are resolved straight
+  up (no sliding on slopes); steeper ones are walls. Ground snapping keeps the cat on slopes going down.
 - `src/inventory/`, `src/npc/`, `src/economy/`, `src/interaction/`, `src/ui/`, `src/state/` — one concern each.
 - Systems communicate through `EventBus` events (`fish:caught`, `fish:sold`, `request:delivered`, `round:started`…).
   All persistent progress is in `GameState` (versioned localStorage save).
 
 ## Data-driven content (`src/data/`)
-`fish.ts`, `spots.ts`, `neighbors.ts`, `economy.ts`, `upgrades.ts`, `layout.ts`, `strings.ts`.
+`fish.ts`, `spots.ts`, `neighbors.ts`, `economy.ts`, `upgrades.ts` (rods/coolers/bait/boat),
+`daycycle.ts` (sky & light keyframes per hour, sun path, game-time speed), `layout.ts`, `strings.ts`.
 Typed with `satisfies`; `validate.ts` checks cross references at startup and in tests.
 **Rebalance by editing data only.** Add a fish: data entry + `art/fish/<id>.py` → `npm run art -- fish`.
 

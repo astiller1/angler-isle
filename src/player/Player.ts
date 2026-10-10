@@ -53,6 +53,7 @@ export class Player {
 
   /** Attach a rod model to the right paw. */
   giveRod(rod: THREE.Object3D): void {
+    this.rod?.parent?.remove(this.rod);
     this.rod = rod;
     rod.rotation.set(THREE.MathUtils.degToRad(50), 0, 0);
     rod.position.set(0, 0.0, 0.02);

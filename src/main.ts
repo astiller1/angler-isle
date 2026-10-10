@@ -13,6 +13,8 @@ import { renderFishIcons } from './ui/FishIcons';
 import { loadState, saveState } from './state/save';
 import { validateData } from './data/validate';
 import { T, fmt } from './data/strings';
+import { rodTier } from './data/upgrades';
+import { ShopSystem } from './economy/ShopSystem';
 import { mapToWorld, orientationAt, toTangent, worldToMap } from './planet/Planet';
 
 async function boot(): Promise<void> {
@@ -52,7 +54,7 @@ async function boot(): Promise<void> {
 
   // ---- the rod on the rack
   if (state.hasRod) {
-    player.giveRod(game.assets.get('props/rod'));
+    player.giveRod(game.assets.get(rodTier(state.rodTier).model));
   } else {
     const rackRod = game.assets.get('props/rod');
     rackRod.position.copy(rack.pos);
@@ -77,6 +79,7 @@ async function boot(): Promise<void> {
   }
 
   const neighbors = new Neighbors(game, world, player, hud, state, interaction);
+  new ShopSystem(game, neighbors, player, hud, state, interaction);
   hud.renderAll();
   const fishing = new FishingSystem(game, player, hud, state, world.seabed);
   const markers = new SpotMarkers(world.seabed);
@@ -90,7 +93,7 @@ async function boot(): Promise<void> {
     state.timeOfDay = env.hour;
     saveState(state);
   };
-  for (const e of ['fish:caught', 'coins:changed', 'request:delivered', 'round:started', 'cooler:changed'] as const) game.events.on(e, persist);
+  for (const e of ['fish:caught', 'coins:changed', 'request:delivered', 'round:started', 'cooler:changed', 'rod:upgraded'] as const) game.events.on(e, persist);
   setInterval(persist, 5000);
   addEventListener('beforeunload', persist);
 

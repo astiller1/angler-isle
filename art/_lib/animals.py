@@ -136,7 +136,9 @@ def build_animal(spec):
         tz = H + 0.08
         if tail == "cat":
             pts = [(0, by, tz), (0, by + 0.14, tz + 0.04), (0, by + 0.24, tz + 0.18), (0, by + 0.24, tz + 0.36), (0, by + 0.18, tz + 0.46)]
-            mb.tube(pts, [0.055, 0.052, 0.05, 0.048, 0.045], color=fur, seg=8)
+            stripes = s.get("tail_stripes")
+            tail_col = (lambda co: stripes if int((co.z - tz) * 14) % 2 == 0 else fur) if stripes else fur
+            mb.tube(pts, [0.06, 0.058, 0.055, 0.05, 0.045], color=tail_col, seg=8)
             mb.sphere(0.05, pts[-1], color=s.get("tail_tip", fur), seg=8, rings=6)
         elif tail == "stub":
             mb.sphere(0.07, (0, by + 0.02, tz + 0.04), color=fur, seg=8, rings=6)

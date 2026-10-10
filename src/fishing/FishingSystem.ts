@@ -256,6 +256,7 @@ export class FishingSystem {
     this.hud.bite(false);
     const fish = fishById(this.pending!.fishId);
     this.fight = startFight(fish, this.pending!.weight, this.rod, this.rng);
+    if (fish.minRodTier > this.rod.tier) this.hud.toast(T.tooStrong, 'warn');
     this.phase = 'reeling';
     this.t = 0;
     this.ring(this.bobberPos, 1.4);

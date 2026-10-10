@@ -70,8 +70,8 @@ export const FISH = [
     basePrice: 62,
     weight: [8, 25],
     length: 1.0,
-    fight: { strength: 0.85, burst: 0.7, stamina: 0.8 },
-    minRodTier: 1,
+    fight: { strength: 0.95, burst: 0.75, stamina: 0.85 },
+    minRodTier: 2,
     model: 'fish/tarpun',
   },
   {

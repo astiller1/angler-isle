@@ -16,11 +16,11 @@ import type { World } from '../world/World';
 import { deliver, matchingFish, reservedFish, startRound, type RequestContext } from './requests';
 
 /** Per-character display scale (models are authored roughly the same size). */
-const SCALE: Record<string, number> = { walter: 1.2, bruno: 1.4, fritzi: 1.0, pelle: 1.3 };
+const SCALE: Record<string, number> = { walter: 1.2, bruno: 1.4, fritzi: 1.0, pelle: 1.3, rocco: 1.2 };
 /** Standing on a little box behind a counter (m). */
-const LIFT: Record<string, number> = { bruno: 0.15, pelle: 0.45 };
+const LIFT: Record<string, number> = { bruno: 0.15, pelle: 0.45, rocco: 0.3 };
 
-interface Npc {
+export interface Npc {
   id: string;
   name: string;
   char: Character;
@@ -77,7 +77,8 @@ export class Neighbors {
     if (state.round === 0) startRound(state, this.ctx);
   }
 
-  private spawn(id: string, name: string, model: string, at: Anchor, pose: Pose): Npc {
+  /** Place a character at an anchor (also used by other systems, e.g. the shop). */
+  spawn(id: string, name: string, model: string, at: Anchor, pose: Pose): Npc {
     const char = new Character(this.game.assets.get(model));
     char.root.traverse((o) => (o.castShadow = true));
     char.pose = pose;
@@ -118,6 +119,11 @@ export class Neighbors {
     };
     this.npcs.push(npc);
     return npc;
+  }
+
+  /** Let an NPC do a little happy dance. */
+  celebrate(npc: Npc, seconds = 2.5): void {
+    npc.celebrateUntil = this.time + seconds;
   }
 
   private neighborInteractable(n: NeighborDef, npc: Npc): Interactable {

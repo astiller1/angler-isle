@@ -3,6 +3,7 @@ import type { CaughtFish } from '../state/GameState';
 /** All game events and their payloads. Add new events here so every listener stays typed. */
 export interface GameEvents {
   'rod:taken': void;
+  'rod:upgraded': { tier: number };
   'fish:caught': { fish: CaughtFish; spotId: string };
   'fish:escaped': { fishId: string | null; reason: 'snap' | 'slack' | 'missed' };
   'fish:released': { fish: CaughtFish };

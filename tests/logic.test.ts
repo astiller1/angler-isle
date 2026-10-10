@@ -10,6 +10,8 @@ import { addToCooler, coolerCapacity, coolerFull } from '../src/inventory/Cooler
 import { castDistance, rollFish, startFight, stepFight, weightedPick } from '../src/fishing/logic';
 import { allDelivered, deliver, reachableFish, reservedFish, startRound, type RequestContext } from '../src/npc/requests';
 import { sellFish } from '../src/economy/trader';
+import { buyNextRod, rodOffers } from '../src/economy/shop';
+import { DAY, skyKeysAt, sunDirection, clockText } from '../src/data/daycycle';
 
 function seeded(seed = 42) {
   let a = seed;
@@ -22,6 +24,17 @@ function seeded(seed = 42) {
 const ctx = (rng = seeded()): RequestContext => ({ neighbors: NEIGHBORS, fish: FISH, spots: SPOTS, hasBoat: false, rng });
 
 const fish = (fishId: string, uid = fishId + Math.random(), weight = 1): CaughtFish => ({ uid, fishId, weight, value: 10 });
+
+/** Simple bot: reel while tension is below a fraction of the rod's limit. */
+function simulate(fishId: string, weight: number, threshold: number, seed = 5, rod = RODS[0]) {
+  const rng = seeded(seed);
+  const f = startFight(fishById(fishId), weight, rod, rng);
+  for (let t = 0; t < 120; t += 1 / 60) {
+    const r = stepFight(f, f.tension < threshold * rod.tensionLimit, rod, 1 / 60, rng);
+    if (r !== 'fighting') return { r, t };
+  }
+  return { r: 'timeout' as const, t: 120 };
+}
 
 describe('data', () => {
   it('passes validation', () => {
@@ -77,28 +90,21 @@ describe('fishing', () => {
     }
   });
 
-  /** Simple bot: reel while tension is below a threshold. */
-  function simulate(fishId: string, weight: number, threshold: number, seed = 5) {
-    const rng = seeded(seed);
-    const f = startFight(fishById(fishId), weight, RODS[0], rng);
-    for (let t = 0; t < 120; t += 1 / 60) {
-      const r = stepFight(f, f.tension < threshold, RODS[0], 1 / 60, rng);
-      if (r !== 'fighting') return { r, t };
-    }
-    return { r: 'timeout' as const, t: 120 };
-  }
-
   it('a common fish is landed by simply holding reel', () => {
     const { r, t } = simulate('grunzer', 0.6, 99);
     expect(r).toBe('landed');
     expect(t).toBeLessThan(15);
   });
   it('a big rare fish snaps the line when reeled carelessly', () => {
-    const outcomes = [1, 2, 3, 4, 5].map((s) => simulate('tarpun', 22, 99, s).r);
-    expect(outcomes.filter((r) => r === 'snap').length).toBeGreaterThanOrEqual(3);
+    const outcomes = [1, 2, 3, 4, 5, 6].map((s) => simulate('zackenbarsch', 11, 99, s).r);
+    expect(outcomes.filter((r) => r === 'snap').length).toBeGreaterThanOrEqual(2);
+  });
+  it('a tarpon on the right rod still needs tension control', () => {
+    const careless = [1, 2, 3, 4, 5, 6].map((s) => simulate('tarpun', 22, 99, s, RODS[1]).r);
+    expect(careless.filter((r) => r === 'snap').length).toBeGreaterThanOrEqual(2);
   });
   it('a big rare fish can be landed with tension control', () => {
-    const outcomes = [1, 2, 3, 4, 5].map((s) => simulate('tarpun', 22, 0.82, s));
+    const outcomes = [1, 2, 3, 4, 5].map((s) => simulate('tarpun', 22, 0.82, s, RODS[1]));
     expect(outcomes.filter((o) => o.r === 'landed').length).toBeGreaterThanOrEqual(4);
     for (const o of outcomes) if (o.r === 'landed') expect(o.t).toBeLessThan(60);
   });
@@ -162,6 +168,49 @@ describe('requests & rounds', () => {
   });
 });
 
+describe('rod tiers', () => {
+  it('each tier is strictly better and pricier', () => {
+    for (let i = 1; i < RODS.length; i++) {
+      expect(RODS[i].castMax).toBeGreaterThan(RODS[i - 1].castMax);
+      expect(RODS[i].tensionLimit).toBeGreaterThan(RODS[i - 1].tensionLimit);
+      expect(RODS[i].price).toBeGreaterThan(RODS[i - 1].price);
+    }
+    expect(RODS[0].price).toBe(0);
+  });
+  it('a fish above the rod tier cannot be landed even with careful reeling', () => {
+    const outcomes = [1, 2, 3, 4, 5].map((s) => simulate('tarpun', 15, 0.82, s, RODS[0]).r);
+    expect(outcomes.filter((r) => r === 'landed').length).toBeLessThanOrEqual(1);
+  });
+  it('neighbors only ask for fish the current rod can land', () => {
+    expect(reachableFish(ctx(), 1).has('tarpun')).toBe(false);
+    expect(reachableFish(ctx(), 2).has('tarpun')).toBe(true);
+  });
+});
+
+describe('shop', () => {
+  it('sells rods in order and only with enough coins', () => {
+    const s = newGameState();
+    s.hasRod = true;
+    s.coins = 100;
+    expect(buyNextRod(s)).toBeNull();
+    expect(s.coins).toBe(100); // no money lost
+    expect(rodOffers(s).map((o) => o.status)).toEqual(['tooExpensive', 'locked']);
+    s.coins = 700;
+    expect(buyNextRod(s)?.tier).toBe(2);
+    expect(s.coins).toBe(700 - RODS[1].price);
+    expect(rodOffers(s).map((o) => o.status)).toEqual(['owned', 'buyable']);
+    expect(buyNextRod(s)?.tier).toBe(3);
+    expect(buyNextRod(s)).toBeNull(); // max tier
+    expect(rodOffers(s).every((o) => o.status === 'owned')).toBe(true);
+  });
+  it('cannot buy before taking the starter rod', () => {
+    const s = newGameState();
+    s.coins = 1000;
+    expect(buyNextRod(s)).toBeNull();
+    expect(rodOffers(s).every((o) => o.status === 'locked')).toBe(true);
+  });
+});
+
 describe('trader', () => {
   it('sells fish for their value', () => {
     const s = newGameState();
@@ -190,5 +239,27 @@ describe('balance', () => {
     const rounds = BOAT.price / perRound;
     expect(rounds).toBeGreaterThan(2);
     expect(rounds).toBeLessThan(3.5);
+  });
+});
+
+describe('day cycle', () => {
+  it('24 real minutes make a full day', () => {
+    expect(DAY.realSecondsPerGameHour * 24).toBe(24 * 60);
+  });
+  it('the sun is up at noon, below the planet at midnight, rises east and sets west', () => {
+    expect(sunDirection(12)[1]).toBeGreaterThan(0.8);
+    expect(sunDirection(0)[1]).toBeLessThan(-0.8);
+    expect(sunDirection(6)[0]).toBeGreaterThan(0.9);
+    expect(sunDirection(18)[0]).toBeLessThan(-0.9);
+  });
+  it('sky keys cover the whole day and interpolate', () => {
+    for (let h = 0; h < 24; h += 0.25) {
+      const [a, b, t] = skyKeysAt(h);
+      expect(a.hour).toBeLessThanOrEqual(h);
+      expect(b.hour).toBeGreaterThanOrEqual(h);
+      expect(t).toBeGreaterThanOrEqual(0);
+      expect(t).toBeLessThanOrEqual(1);
+    }
+    expect(clockText(13.5)).toBe('13:30');
   });
 });

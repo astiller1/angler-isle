@@ -1,6 +1,6 @@
 # Roadmap
 
-## Milestone 1 — First playable (current)
+## Milestone 1 — First playable ✔
 - Water planet with the main island, curved horizon, stylized water
 - Third-person walking + camera on the curved surface (keyboard + gamepad)
 - Tackle shack start, harbor village (stilt house with stairs, long pier, dock)
@@ -10,9 +10,15 @@
 - 3 neighbors with fish requests, once-per-round delivery, round rollover
 - Local save (localStorage)
 
-## Milestone 2 — Shop & upgrades
-- Tackle-shack shop UI (data already in `src/data/upgrades.ts`)
-- Rod tiers 1–3 (cast distance, tension tolerance, rare fish gated by tier)
+## Version 2 ✔
+- Day–night cycle (24 real minutes = 24 game hours): sun and moon orbit the planet, Caribbean sky colors
+  per time of day, stars, glowing lanterns, HUD clock (keyframes in `src/data/daycycle.ts`)
+- No sliding on slopes (walkable surfaces resolve vertically) + ground snapping when walking downhill
+- Cast prompt only with castable water ahead within the current rod's range
+- Shop at the tackle shack (Rocco the raccoon) with rod tiers 1–3: Bambus (free) → Glasfaser (180) →
+  Karbon (450); cast range, tension limit, reel speed; the tarpon needs tier 2
+
+## Milestone 2 — Shop & upgrades (rest)
 - Coolers 4 → 6 → 8 (cooler view already reads slot count from data)
 - Bait items that bias spot species tables
 - Neighbor extra rewards: hints, bait, cosmetics (reward types already typed)

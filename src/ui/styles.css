@@ -12,12 +12,12 @@
   font-family: 'Trebuchet MS', 'Segoe UI Rounded', 'Segoe UI', system-ui, sans-serif;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; overflow: hidden; background: #ffd2a6; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #a9e6f7; }
 #game { display: block; width: 100vw; height: 100vh; outline: none; }
 #ui { position: fixed; inset: 0; pointer-events: none; color: var(--ink); user-select: none; font-size: 15px; }
 .hidden { display: none !important; }
 .loading { position: absolute; inset: 0; display: grid; place-items: center; font-size: 30px; font-weight: bold; color: #fff;
-  text-shadow: 0 3px 0 rgba(0,0,0,.18); background: linear-gradient(#6fb3e8, #ffd2a6); }
+  text-shadow: 0 3px 0 rgba(0,0,0,.18); background: linear-gradient(#2482da, #a9e6f7); }
 .loading small { display: block; font-size: 15px; margin-top: 8px; text-align: center; opacity: .85; }
 
 .panel { background: var(--paper); border: 3px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }

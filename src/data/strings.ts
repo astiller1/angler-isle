@@ -53,6 +53,21 @@ export const T = {
   roundDone: 'Alle Wünsche erfüllt! Eine neue Runde beginnt.',
   coinsGained: '+{coins} Münzen',
 
+  // shop
+  shop: 'Laden (Rocco)',
+  shopTitle: 'Rocco — Köder & Angeln',
+  shopGreet: 'Moin, Mika! Bessere Angel, größere Fische. Du angelst gerade mit der <b>{rod}</b>.',
+  shopMax: 'Du hast schon die beste Angel der Insel! Mehr hab ich nicht im Laden.',
+  shopBuy: '{rod} — {price} Münzen',
+  shopOwned: '✔ {rod}',
+  shopOwnedHint: 'Gehört dir',
+  shopLocked: 'Erst die {rod} kaufen',
+  shopMissing: 'Dir fehlen noch {coins} Münzen',
+  shopStats: 'Wurfweite {cast} m · Schnur hält {tension} % · Einholen {reel} %',
+  shopThanks: 'Viel Spaß mit der neuen {rod}! Probier sie gleich am Wasser aus.',
+  rodUpgraded: 'Neue Angel: {rod}!',
+  tooStrong: 'Der ist zu stark für deine Angel! Im Laden gibt es bessere.',
+
   weight: '{kg} kg',
   rarity: { common: 'Häufig', uncommon: 'Ungewöhnlich', rare: 'Selten' },
   controlsKeyboard: 'WASD laufen · Pfeiltasten/Rechtsklick Kamera · Leertaste springen · Shift rennen · E interagieren · F/Linksklick angeln · Q abbrechen',
