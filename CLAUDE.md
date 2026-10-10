@@ -74,6 +74,13 @@ no physics engine — "up" changes across the planet). Plain DOM/CSS HUD. Vitest
   input, `body.compact` HUD layout (`ui/mobile.css`). `core/Quality.ts`: `low` profile on touch/small screens
   (pixel ratio 1.3, 1024 shadows, 45 % decoration), `?quality=high|low` overrides. Test touch in the browser pane
   with a viewport narrower than 768 px (e.g. 740×360) — only then is touch emulated.
+- Audio: `audio/compose.ts` (pure, unit-tested calypso generator in F major: form A-A-B-A, new catchy melody
+  per loop, chord-tone melody on strong beats) + `audio/Music.ts` (Web Audio synth: steel pan, marimba, bass,
+  guitar chucks, pads, shaker, bongos, kick, small reverb; look-ahead scheduler). No audio files.
+  `music.night` (0..1 from `env.night`) slows the tempo and swaps to a mellow night band. Settings in
+  `data/music.ts`; volume/mute per browser in localStorage (`M` key / speaker button). Audio starts after the
+  first user gesture (browser policy); suspended while the tab is hidden. `window.anglerMusic()` for debugging;
+  an `OfflineAudioContext` + `music.schedule(seconds)` renders previews.
 - Movement: surfaces with normal·up > `PLAYER_SETTINGS.walkable` count as ground and are resolved straight
   up (no sliding on slopes); steeper ones are walls. Ground snapping keeps the cat on slopes going down.
 - `src/inventory/`, `src/npc/`, `src/economy/`, `src/interaction/`, `src/ui/`, `src/state/` — one concern each.

@@ -23,6 +23,10 @@
   tap-to-play gate with fullscreen + landscape lock (Android), rotate hint in portrait, compact HUD,
   low-quality render profile, web app manifest (landscape, fullscreen)
 
+## Version 4 ✔
+- Cheerful island background music, synthesized live (calypso: steel pan, guitar chucks, bass, bongos);
+  new melody every loop, mellow night band that follows the day cycle; mute via M / speaker button
+
 ## Milestone 2 — Shop & upgrades (rest)
 - Coolers 4 → 6 → 8 (cooler view already reads slot count from data)
 - Bait items that bias spot species tables
@@ -43,7 +47,7 @@
 - Fangbuch (catch log UI), cosmetics for the cat
 
 ## Milestone 5 — Polish
-- Audio (ambience, splashes, reel, music)
+- Sound effects (ambience, waves, splashes, reel, catch jingle)
 - Armature-based animation pass (optional), particles, UI polish
 - Settings (volume, camera sensitivity, invert), performance presets
 - Balancing pass across all rounds

@@ -39,7 +39,7 @@ export class Hud {
         <div class="badge round"><span class="round-num"></span></div>
         <div class="requests panel small"></div>
       </div>
-      <div class="hud-top-right"><div class="badge clock"><span class="clock-icon">☀</span><span class="clock-num">08:00</span></div><div class="badge coins"><span class="coin-icon">●</span><span class="coin-num">0</span></div></div>
+      <div class="hud-top-right"><button class="badge sound" title="Musik an/aus (M)" aria-label="Musik an/aus">🔊</button><div class="badge clock"><span class="clock-icon">☀</span><span class="clock-num">08:00</span></div><div class="badge coins"><span class="coin-icon">●</span><span class="coin-num">0</span></div></div>
       <div class="spot-name hidden"></div>
       <div class="toasts"></div>
       <div class="cooler-bar"></div>
@@ -67,6 +67,9 @@ export class Hud {
     this.cardEl = q('.catch-card');
     this.spotEl = q('.spot-name');
     this.menu = new Menu(ui, game.input);
+    const soundBtn = q('.sound');
+    soundBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+    soundBtn.addEventListener('click', () => this.onSoundToggle?.());
     this.shownCoins = state.coins;
     this.coinsEl.textContent = String(state.coins);
 
@@ -185,6 +188,16 @@ export class Hud {
   }
 
   /** Game clock (hour 0..24). */
+  /** Called when the speaker button is pressed. */
+  onSoundToggle: (() => void) | null = null;
+
+  /** Show the music state on the speaker button. */
+  setSound(muted: boolean): void {
+    const b = this.root.querySelector('.sound') as HTMLButtonElement;
+    b.textContent = muted ? '🔇' : '🔊';
+    b.classList.toggle('muted', muted);
+  }
+
   clock(hour: number): void {
     const text = clockText(hour);
     if (text === this.clockShown) return;

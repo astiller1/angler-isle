@@ -70,7 +70,7 @@ export const T = {
 
   weight: '{kg} kg',
   rarity: { common: 'Häufig', uncommon: 'Ungewöhnlich', rare: 'Selten' },
-  controlsKeyboard: 'WASD laufen · Pfeiltasten/Rechtsklick Kamera · Leertaste springen · Shift rennen · E interagieren · F/Linksklick angeln · Q abbrechen',
+  controlsKeyboard: 'WASD laufen · Pfeiltasten/Rechtsklick Kamera · Leertaste springen · Shift rennen · E interagieren · F/Linksklick angeln · Q abbrechen · M Musik',
   controlsGamepad: 'Linker Stick laufen · Rechter Stick Kamera · A springen · X interagieren · RT angeln · B abbrechen · LT rennen',
 } as const;
 

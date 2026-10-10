@@ -15,6 +15,7 @@ winzigen Wasserplaneten, fängst Fische, erfüllst die Wünsche der Nachbarn und
 | Reden / Nehmen / Kaufen | E | X | Großer Aktionsknopf (💬 / ✋ / 🛒) |
 | Angeln: Auswerfen (halten), Anschlagen, Einholen (halten) | F / linke Maustaste | RT | Großer Aktionsknopf (🎣) |
 | Abbrechen | Q | B | ✕-Knopf |
+| Musik an/aus | M oder 🔊 oben rechts | 🔊 oben rechts | 🔊 oben rechts |
 
 Auf dem Handy wird quer gespielt: Beim Start auf „Tippen zum Spielen“ drücken (Android: Vollbild + Querformat).
 Tipp: Über „Zum Startbildschirm hinzufügen“ startet die Insel wie eine App im Vollbild.

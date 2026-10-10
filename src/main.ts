@@ -12,6 +12,7 @@ import { Neighbors } from './npc/Neighbors';
 import { Hud } from './ui/Hud';
 import { renderFishIcons } from './ui/FishIcons';
 import { TouchControls } from './ui/TouchControls';
+import { Music, loadAudioSettings, saveAudioSettings } from './audio/Music';
 import { MobileShell } from './ui/MobileShell';
 import { loadState, saveState } from './state/save';
 import { validateData } from './data/validate';
@@ -87,6 +88,51 @@ async function boot(): Promise<void> {
   new ShopSystem(game, neighbors, player, hud, state, interaction);
   hud.renderAll();
   const fishing = new FishingSystem(game, player, hud, state, world.seabed);
+
+  // ---- background music (synthesized live; browsers only allow audio after a user gesture)
+  const audio = loadAudioSettings();
+  let music: Music | null = null;
+  hud.setSound(audio.muted);
+  const unlockAudio = () => {
+    if (music) return;
+    const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    music = new Music(ctx);
+    music.night = musicNight();
+    music.setVolume(audio.volume, audio.muted);
+    ctx.resume().then(() => music!.start());
+  };
+  const toggleMusic = () => {
+    audio.muted = !audio.muted;
+    saveAudioSettings(audio);
+    hud.setSound(audio.muted);
+    unlockAudio();
+    music?.setVolume(audio.volume, audio.muted);
+  };
+  hud.onSoundToggle = toggleMusic;
+  (window as unknown as Record<string, unknown>).anglerMusic = () => music;
+  addEventListener('pointerdown', unlockAudio, { capture: true });
+  // iOS Safari only unlocks audio on touchend/click — resume there as well
+  for (const ev of ['pointerup', 'touchend', 'click'] as const) {
+    addEventListener(ev, () => {
+      unlockAudio();
+      const ctx = music?.ctx as AudioContext | undefined;
+      if (ctx && ctx.state === 'suspended' && !document.hidden) ctx.resume();
+    }, { capture: true });
+  }
+  addEventListener('keydown', (e) => {
+    unlockAudio();
+    if (e.code === 'KeyM' && !e.repeat) toggleMusic();
+  }, { capture: true });
+  document.addEventListener('visibilitychange', () => {
+    const ctx = music?.ctx as AudioContext | undefined;
+    if (!ctx) return;
+    if (document.hidden) ctx.suspend();
+    else ctx.resume();
+  });
+  /** 0 = day band … 1 = night band, following the sky. */
+  const musicNight = () => Math.min(1, Math.max(0, (env.night - 0.25) / 0.4));
   const markers = new SpotMarkers(world.seabed);
   game.scene.add(markers.root);
 
@@ -113,6 +159,7 @@ async function boot(): Promise<void> {
       neighbors.update(dt);
       markers.update(time, dt);
       env.update(dt, time, player.controller.position, player.rig.camera, player.controller.up);
+      if (music) music.night = musicNight();
       hud.clock(env.hour);
     },
   });
