@@ -6,6 +6,7 @@ import { T, fmt, kg } from '../data/strings';
 import { coolerCapacity } from '../inventory/Cooler';
 import type { CaughtFish, GameState } from '../state/GameState';
 import { glyph } from './glyphs';
+import { clockText } from '../data/daycycle';
 import { Menu } from './Menu';
 
 /** The DOM overlay: coins, round & requests, cooler slots, prompts, toasts, fishing gauges, catch card. */
@@ -24,6 +25,7 @@ export class Hud {
   private cardEl: HTMLElement;
   private spotEl: HTMLElement;
   private shownCoins = 0;
+  private clockShown = '';
   private promptKey = '';
 
   constructor(
@@ -37,7 +39,7 @@ export class Hud {
         <div class="badge round"><span class="round-num"></span></div>
         <div class="requests panel small"></div>
       </div>
-      <div class="hud-top-right"><div class="badge coins"><span class="coin-icon">●</span><span class="coin-num">0</span></div></div>
+      <div class="hud-top-right"><div class="badge clock"><span class="clock-icon">☀</span><span class="clock-num">08:00</span></div><div class="badge coins"><span class="coin-icon">●</span><span class="coin-num">0</span></div></div>
       <div class="spot-name hidden"></div>
       <div class="toasts"></div>
       <div class="cooler-bar"></div>
@@ -176,6 +178,18 @@ export class Hud {
     (this.tensionEl.querySelector('.line-fill') as HTMLElement).style.width = `${(1 - t.distance) * 100}%`;
     (this.tensionEl.querySelector('.line-fish') as HTMLElement).style.left = `calc(${(1 - t.distance) * 100}% - 10px)`;
     (this.tensionEl.querySelector('.tension-label') as HTMLElement).innerHTML = t.label;
+  }
+
+  /** Game clock (hour 0..24). */
+  clock(hour: number): void {
+    const text = clockText(hour);
+    if (text === this.clockShown) return;
+    this.clockShown = text;
+    (this.root.querySelector('.clock-num') as HTMLElement).textContent = text;
+    const day = hour >= 6 && hour < 18.5;
+    const icon = this.root.querySelector('.clock-icon') as HTMLElement;
+    icon.textContent = day ? '☀' : '☾';
+    icon.className = 'clock-icon ' + (day ? 'sun' : 'moon');
   }
 
   bite(on: boolean): void {

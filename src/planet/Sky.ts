@@ -1,32 +1,29 @@
 import * as THREE from 'three';
 
-export const SKY_SETTINGS = {
-  zenith: '#6FB3E8',
-  horizon: '#FFD2A6',
-  below: '#F7B98E',
-  sun: '#FFE6B5',
-};
-
 /**
- * Gradient sky dome that follows the camera. The gradient is relative to the camera's local "up"
- * (the planet normal under the player), so the horizon always looks right on the sphere.
+ * Gradient sky dome that follows the camera, with sun disc, moon disc and stars. The gradient is
+ * relative to the camera's local "up" (the planet normal under the player), so the horizon always
+ * looks right on the sphere. Colors are driven by the day cycle (Environment).
  */
 export class Sky {
   readonly mesh: THREE.Mesh;
   readonly material: THREE.ShaderMaterial;
 
-  constructor(sunDir: THREE.Vector3) {
+  constructor() {
     this.material = new THREE.ShaderMaterial({
       side: THREE.BackSide,
       depthWrite: false,
       fog: false,
       uniforms: {
         uUp: { value: new THREE.Vector3(0, 1, 0) },
-        uSunDir: { value: sunDir.clone() },
-        uZenith: { value: new THREE.Color(SKY_SETTINGS.zenith) },
-        uHorizon: { value: new THREE.Color(SKY_SETTINGS.horizon) },
-        uBelow: { value: new THREE.Color(SKY_SETTINGS.below) },
-        uSun: { value: new THREE.Color(SKY_SETTINGS.sun) },
+        uSunDir: { value: new THREE.Vector3(0, 1, 0) },
+        uMoonDir: { value: new THREE.Vector3(0, -1, 0) },
+        uZenith: { value: new THREE.Color() },
+        uHorizon: { value: new THREE.Color() },
+        uBelow: { value: new THREE.Color() },
+        uSun: { value: new THREE.Color('#FFE6B5') },
+        uStars: { value: 0 },
+        uTime: { value: 0 },
       },
       vertexShader: /* glsl */ `
         varying vec3 vDir;
@@ -36,35 +33,48 @@ export class Sky {
           gl_Position = p.xyww;
         }`,
       fragmentShader: /* glsl */ `
-        uniform vec3 uUp; uniform vec3 uSunDir;
+        uniform vec3 uUp; uniform vec3 uSunDir; uniform vec3 uMoonDir;
         uniform vec3 uZenith; uniform vec3 uHorizon; uniform vec3 uBelow; uniform vec3 uSun;
+        uniform float uStars; uniform float uTime;
         varying vec3 vDir;
+        float hash(vec3 p) { return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453); }
         void main() {
           vec3 d = normalize(vDir);
           float e = dot(d, uUp);
-          vec3 col = mix(uHorizon, uZenith, pow(smoothstep(0.0, 0.75, e), 0.7));
-          col = mix(col, uBelow, smoothstep(0.0, -0.35, e));
+          vec3 col = mix(uHorizon, uZenith, pow(smoothstep(0.0, 0.8, e), 0.65));
+          col = mix(col, uBelow, smoothstep(0.0, -0.3, e));
+
+          // sun: glow + disc (fades when below the local horizon)
+          float sunUp = smoothstep(-0.12, 0.05, dot(uSunDir, uUp));
           float s = max(dot(d, uSunDir), 0.0);
-          col += uSun * (pow(s, 8.0) * 0.35 + pow(s, 600.0) * 2.0);
-          // warm glow band around the horizon on the sun side
-          col += vec3(1.0, 0.55, 0.3) * 0.18 * pow(s, 3.0) * (1.0 - smoothstep(0.0, 0.35, abs(e)));
+          col += uSun * sunUp * (pow(s, 6.0) * 0.28 + pow(s, 900.0) * 2.5);
+          col += vec3(1.0, 0.5, 0.25) * 0.22 * pow(s, 3.0) * sunUp * (1.0 - smoothstep(0.0, 0.4, abs(e)));
+
+          // moon
+          float moonUp = smoothstep(-0.1, 0.05, dot(uMoonDir, uUp));
+          float m = max(dot(d, uMoonDir), 0.0);
+          col += vec3(0.85, 0.9, 1.0) * moonUp * (smoothstep(0.9993, 0.9996, m) * 1.4 + pow(m, 60.0) * 0.12);
+
+          // stars above the horizon
+          if (uStars > 0.01 && e > 0.0) {
+            vec3 cell = floor(d * 220.0);
+            float h = hash(cell);
+            float star = step(0.9965, h) * (0.6 + 0.4 * sin(uTime * 2.0 + h * 50.0));
+            col += vec3(star) * uStars * smoothstep(0.0, 0.15, e);
+          }
           gl_FragColor = vec4(col, 1.0);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
         }`,
     });
-    this.mesh = new THREE.Mesh(new THREE.SphereGeometry(1000, 32, 16), this.material);
+    this.mesh = new THREE.Mesh(new THREE.SphereGeometry(1000, 48, 24), this.material);
     this.mesh.frustumCulled = false;
     this.mesh.renderOrder = -10;
   }
 
-  update(camera: THREE.Camera, up: THREE.Vector3): void {
+  update(camera: THREE.Camera, up: THREE.Vector3, time: number): void {
     this.mesh.position.copy(camera.position);
     this.material.uniforms.uUp.value.copy(up);
-  }
-
-  /** Color matching the sky horizon, used for fog. */
-  static fogColor(): THREE.Color {
-    return new THREE.Color(SKY_SETTINGS.horizon);
+    this.material.uniforms.uTime.value = time;
   }
 }

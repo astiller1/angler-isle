@@ -20,7 +20,7 @@ export class Water {
   readonly mesh: THREE.Mesh;
   readonly material: THREE.ShaderMaterial;
 
-  constructor(seabed: Seabed, sunDir: THREE.Vector3) {
+  constructor(seabed: Seabed) {
     this.material = new THREE.ShaderMaterial({
       fog: true,
       uniforms: THREE.UniformsUtils.merge([
@@ -34,9 +34,10 @@ export class Water {
           uMid: { value: new THREE.Color(WATER_SETTINGS.mid) },
           uDeep: { value: new THREE.Color(WATER_SETTINGS.deep) },
           uFoam: { value: new THREE.Color(WATER_SETTINGS.foam) },
-          uSky: { value: new THREE.Color('#FFD9B8') },
-          uSunDir: { value: sunDir.clone() },
+          uSky: { value: new THREE.Color('#A9E6F7') },
+          uSunDir: { value: new THREE.Vector3(0, 1, 0) },
           uSunColor: { value: new THREE.Color('#FFE2B0') },
+          uLight: { value: 1 },
           uWaveH: { value: WATER_SETTINGS.waveHeight },
           uFoamWidth: { value: WATER_SETTINGS.foamWidth },
         },
@@ -146,6 +147,7 @@ uniform vec3 uSunDir;
 uniform vec3 uSunColor;
 uniform float uWaveH;
 uniform float uFoamWidth;
+uniform float uLight;
 varying vec2 vMap;
 varying vec3 vDir;
 varying vec3 vWorld;
@@ -177,6 +179,7 @@ void main() {
   // depth colors
   vec3 col = mix(uShallow, uMid, smoothstep(0.2, 2.2, depth));
   col = mix(col, uDeep, smoothstep(2.5, 9.0, depth));
+  col *= uLight;
 
   vec3 V = normalize(cameraPosition - vWorld);
   float fres = pow(1.0 - clamp(dot(N, V), 0.0, 1.0), 4.0);
@@ -184,14 +187,14 @@ void main() {
   vec3 H = normalize(V + uSunDir);
   float spec = pow(max(dot(N, H), 0.0), 140.0);
   col += uSunColor * spec * 0.9;
-  col *= 0.88 + 0.22 * max(dot(vDir, uSunDir), 0.0);
+  col *= 0.9 + 0.15 * max(dot(vDir, uSunDir), 0.0);
 
   // shoreline foam: solid edge + moving bands
   float fn = noise(m * 0.8 + t * 0.15);
   float edge = 1.0 - smoothstep(0.0, uFoamWidth, depth + (fn - 0.5) * 0.25);
   float bands = smoothstep(0.8, 0.97, sin(depth * 5.0 - t * 1.6 + fn * 2.0)) * smoothstep(0.1, 0.35, depth) * (1.0 - smoothstep(0.6, 1.8, depth));
   float foam = clamp(edge + bands * 0.7, 0.0, 1.0) * step(-19.0, bed);
-  col = mix(col, uFoam, foam * 0.85);
+  col = mix(col, uFoam * (0.25 + 0.75 * uLight), foam * 0.85);
 
   gl_FragColor = vec4(col, 1.0);
   #include <tonemapping_fragment>

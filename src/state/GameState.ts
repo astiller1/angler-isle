@@ -30,6 +30,8 @@ export interface GameState {
   /** Catch log keyed by fish id. */
   log: Record<string, { count: number; best: number }>;
   player: { x: number; z: number; h: number; yaw: number } | null;
+  /** Game clock in hours (0..24). */
+  timeOfDay: number;
 }
 
 export function newGameState(): GameState {
@@ -45,5 +47,6 @@ export function newGameState(): GameState {
     requests: {},
     log: {},
     player: null,
+    timeOfDay: 8,
   };
 }

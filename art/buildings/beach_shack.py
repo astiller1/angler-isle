@@ -43,6 +43,11 @@ def build():
         b.mb.cyl(0.03, 1.4, (tx, ty, 1.45), color="white", seg=4)
         for sx in (-0.8, 0.8):
             b.mb.cyl(0.2, 0.45, (tx + sx, ty, 0.22), color="wood", seg=8)
+    # string lights under the roof edge
+    for k in range(6):
+        x = -2.5 + k
+        b.mb.sphere(0.06, (x, -2.2, 2.45), color="flower_yellow", seg=6, rings=4)
+        b.glow(x, -2.2, 2.4)
     empty("ANCHOR_cook", (0, -0.4, 0.25))
     b.finish("beach_shack")
 

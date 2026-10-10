@@ -48,6 +48,8 @@ export class World {
   readonly root = new THREE.Group();
   readonly collision = new Collision();
   readonly anchors = new Map<string, AnchorInfo>();
+  /** World positions of night lights (GLOW_* empties in the models). */
+  readonly glows: THREE.Vector3[] = [];
   seabed!: Seabed;
   private footprints: Footprint[] = [];
 
@@ -107,6 +109,10 @@ export class World {
     const out: THREE.BufferGeometry[] = [];
     const box = new THREE.Box3();
     src.traverse((o) => {
+      if (o.name.startsWith('GLOW_')) {
+        this.glows.push(bendPoint(o.getWorldPosition(new THREE.Vector3()), p.x, p.z, rot, baseH));
+        return;
+      }
       if (o.name.startsWith('ANCHOR_')) {
         const local = o.getWorldPosition(new THREE.Vector3());
         const pos = bendPoint(local, p.x, p.z, rot, baseH);

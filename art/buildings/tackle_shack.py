@@ -47,6 +47,7 @@ def build():
     # hanging lamp
     b.mb.cyl(0.18, 0.2, (0, 0.4, H - 0.35), color="flower_yellow", seg=8)
     b.mb.box((0.02, 0.02, 0.5), (0, 0.4, H - 0.1), color="black")
+    b.glow(0, 0.4, H - 0.45)
     # rug
     b.mb.box((2.2, 1.6, 0.02), (0.6, -0.4, 0.07), color="roof_red")
     b.mb.box((1.8, 1.2, 0.022), (0.6, -0.4, 0.075), color="wall_yellow")

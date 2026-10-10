@@ -461,11 +461,19 @@ export class FishingSystem {
     const dx = f.x;
     const dz = f.z;
     const len = Math.hypot(dx, dz) || 1;
+    // castable water = deep enough water within the current rod's cast range, in a ±35° cone ahead
     this.waterAhead = false;
-    for (let d = 5; d <= this.rod.castMax; d += 2.5) {
-      if (this.seabed.isWater(m.x + (dx / len) * d, m.z + (dz / len) * d, 0.3)) {
-        this.waterAhead = true;
-        break;
+    if (!c.inWater) {
+      search: for (const deg of [0, -20, 20, -35, 35]) {
+        const a = THREE.MathUtils.degToRad(deg);
+        const ux = (dx / len) * Math.cos(a) - (dz / len) * Math.sin(a);
+        const uz = (dx / len) * Math.sin(a) + (dz / len) * Math.cos(a);
+        for (let d = FISHING.minCast; d <= this.rod.castMax; d += 1.5) {
+          if (this.seabed.isWater(m.x + ux * d, m.z + uz * d, 0.4)) {
+            this.waterAhead = true;
+            break search;
+          }
+        }
       }
     }
     const near = SPOTS.find((s) => s.access === 'shore' && Math.hypot(m.x - s.x, m.z - s.z) < s.radius + this.rod.castMax + 2) ?? null;

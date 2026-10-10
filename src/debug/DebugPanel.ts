@@ -35,8 +35,10 @@ export function createDebugPanel(game: Game, env: Environment, state: GameState,
   wa.addColor(WATER_SETTINGS, 'deep').onChange((v: string) => u.uDeep.value.set(v));
   wa.add(WATER_SETTINGS, 'waveSpeed', 0, 3);
   wa.add(u.uFoamWidth, 'value', 0, 2).name('foamWidth');
-  wa.add(env.sun, 'intensity', 0, 6).name('sun');
-  wa.add(env.hemi, 'intensity', 0, 4).name('ambient');
+  const day = gui.addFolder('Tageszeit');
+  day.add(env, 'hour', 0, 24, 0.05).name('Uhrzeit').listen();
+  day.add(LIGHT_SETTINGS, 'timeScale', 0, 60).name('Tempo ×');
+  day.add(LIGHT_SETTINGS, 'paused').name('Pause');
   wa.add(LIGHT_SETTINGS, 'fogDensity', 0, 0.02).onChange((v: number) => ((game.scene.fog as { density: number }).density = v));
   const cheats = gui.addFolder('Cheats');
   cheats.add({ coins: () => (state.coins += 500) }, 'coins').name('+500 Münzen');

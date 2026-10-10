@@ -6,7 +6,7 @@ Deck tops are at z = 0 unless noted, so placing the model at a height h puts the
 """
 import math
 
-from kit import MB, obj_from, rng
+from kit import MB, empty, obj_from, rng
 from palette import mix
 
 
@@ -16,6 +16,7 @@ class B:
         self.cb = MB()   # solid: blocks the player and the camera
         self.pb = MB()   # player-only: railings, posts, trunks (the camera may pass)
         self.r = rng(seed)
+        self.glows = 0
 
     # ------------------------------------------------------------------ collision
     def col(self, size, loc, rot=(0, 0, 0), player_only=False):
@@ -221,7 +222,13 @@ class B:
         self.mb.box((0.35, 0.05, 0.05), (x + 0.15, y, z + h), color="wood_dark")
         self.mb.box((0.18, 0.18, 0.24), (x + 0.3, y, z + h - 0.18), color="flower_yellow")
         self.mb.cyl(0.13, 0.06, (x + 0.3, y, z + h - 0.03), color="black", seg=4, r2=0.02)
+        self.glow(x + 0.3, y, z + h - 0.2)
         self.col((0.15, 0.15, h), (x, y, z + h / 2), player_only=True)
+
+    def glow(self, x, y, z):
+        """Night-time light glow point (GLOW_* empties are collected by the game)."""
+        empty(f"GLOW_{self.glows}", (x, y, z), size=0.05)
+        self.glows += 1
 
     def bollard(self, x, y, z):
         self.mb.cyl(0.14, 0.4, (x, y, z + 0.2), color="black", seg=8)

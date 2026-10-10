@@ -15,6 +15,10 @@ export const PLAYER_SETTINGS = {
   maxWadeDepth: 1.4,
   /** Floating level in water (feet height). */
   floatLevel: -0.55,
+  /** Surfaces whose normal·up exceeds this are walkable ground (0.25 ≈ 75°): no sliding, no blocking. */
+  walkable: 0.25,
+  /** How far below the feet the ground may drop while walking before the cat leaves the ground. */
+  snapDistance: 0.6,
 };
 
 export interface MoveIntent {
@@ -130,10 +134,13 @@ export class OnFoot implements MovementMode {
       }
     }
 
-    vUp -= S.gravity * dt;
+    const wasGrounded = p.grounded;
+    let jumped = false;
+    vUp = p.grounded ? Math.min(vUp, 0) - S.gravity * dt : vUp - S.gravity * dt;
     if (intent.jump && (p.grounded || p.inWater)) {
       vUp = S.jumpSpeed;
       p.grounded = false;
+      jumped = true;
     }
     p.velocity.copy(_hor).addScaledVector(up, vUp);
     p.speed = _hor.length();
@@ -142,11 +149,13 @@ export class OnFoot implements MovementMode {
     // integrate in sub-steps with capsule collision
     const steps = 4;
     const h = dt / steps;
-    p.grounded = false;
+    let grounded = false;
     for (let s = 0; s < steps; s++) {
       p.position.addScaledVector(p.velocity, h);
-      collide(p, h);
+      if (collide(p)) grounded = true;
     }
+    if (!grounded && wasGrounded && !jumped && p.velocity.dot(up) <= 0.5 && !p.inWater) grounded = snapToGround(p);
+    p.grounded = grounded;
 
     // float on the surface instead of sinking
     worldToMap(p.position, _map);
@@ -159,9 +168,16 @@ export class OnFoot implements MovementMode {
   }
 }
 
-function collide(p: PlayerController, dt: number): void {
+const _down = new THREE.Vector3();
+
+/**
+ * Capsule vs. BVH. Walkable surfaces push the capsule straight up (along the local up), so standing or
+ * walking on a slope never slides sideways. Steeper surfaces (walls) push out along their normal.
+ * Returns true when the capsule rests on walkable ground.
+ */
+function collide(p: PlayerController): boolean {
   const bvh = p.collision.bvh;
-  if (!bvh) return;
+  if (!bvh) return false;
   const S = PLAYER_SETTINGS;
   const up = upAt(p.position, _tmp.set(0, 0, 0));
   _before.copy(p.position);
@@ -170,33 +186,53 @@ function collide(p: PlayerController, dt: number): void {
   _box.makeEmpty();
   _box.expandByPoint(_seg.start);
   _box.expandByPoint(_seg.end);
-  _box.min.addScalar(-S.radius);
-  _box.max.addScalar(S.radius);
+  _box.min.addScalar(-S.radius - 0.05);
+  _box.max.addScalar(S.radius + 0.05);
+  let onGround = false;
 
   bvh.shapecast({
     intersectsBounds: (box) => box.intersectsBox(_box),
     intersectsTriangle: (tri) => {
       const dist = tri.closestPointToSegment(_seg, _triPoint, _capPoint);
-      if (dist < S.radius) {
-        const depth = S.radius - dist;
-        const dir = _capPoint.sub(_triPoint).normalize();
+      if (dist >= S.radius) return;
+      const depth = S.radius - dist;
+      const dir = _capPoint.sub(_triPoint).normalize();
+      const nUp = dir.dot(up);
+      if (nUp > S.walkable) {
+        // ground: lift straight up just enough to clear the surface
+        const lift = Math.min(depth / nUp, S.radius);
+        _seg.start.addScaledVector(up, lift);
+        _seg.end.addScaledVector(up, lift);
+        onGround = true;
+      } else {
+        // wall or ceiling: push out horizontally / along the normal
         _seg.start.addScaledVector(dir, depth);
         _seg.end.addScaledVector(dir, depth);
+        const into = p.velocity.dot(dir);
+        if (into < 0) p.velocity.addScaledVector(dir, -into);
       }
     },
   });
 
   p.position.copy(_seg.start).addScaledVector(up, -S.radius);
-  _delta.copy(p.position).sub(_before);
-  const vUp = p.velocity.dot(up);
-  const pushUp = _delta.dot(up);
-  if (pushUp > Math.abs(dt * vUp * 0.25) && pushUp > 1e-5) {
-    p.grounded = true;
+  if (onGround) {
+    const vUp = p.velocity.dot(up);
     if (vUp < 0) p.velocity.addScaledVector(up, -vUp);
-  } else if (_delta.lengthSq() > 1e-10) {
-    // hit a wall/ceiling: remove velocity into it
-    _delta.normalize();
-    const into = p.velocity.dot(_delta);
-    if (into < 0) p.velocity.addScaledVector(_delta, -into);
   }
+  void _delta;
+  return onGround;
+}
+
+/** Keep the feet on the ground when walking down slopes or steps (instead of hopping). */
+function snapToGround(p: PlayerController): boolean {
+  const S = PLAYER_SETTINGS;
+  const up = upAt(p.position, _tmp.set(0, 0, 0));
+  _down.copy(up).negate();
+  _before.copy(p.position).addScaledVector(up, 0.3);
+  const hit = p.collision.raycast(_before, _down, 0.3 + S.snapDistance);
+  if (!hit) return false;
+  p.position.copy(hit.point);
+  const vUp = p.velocity.dot(up);
+  if (vUp < 0) p.velocity.addScaledVector(up, -vUp);
+  return true;
 }

@@ -33,7 +33,8 @@ async function boot(): Promise<void> {
   const world = new World(game.assets);
   world.build();
   game.scene.add(world.root);
-  const env = new Environment(game.scene, world.seabed);
+  const env = new Environment(game.scene, world.seabed, state.timeOfDay);
+  env.setGlows(world.glows);
   const hud = new Hud(game, state, renderFishIcons(game.assets));
   const player = new Player(game, world, state);
   const interaction = new InteractionSystem(game, player, hud);
@@ -86,6 +87,7 @@ async function boot(): Promise<void> {
     const m = worldToMap(player.controller.position);
     const f = player.controller.facing;
     state.player = { x: m.x, z: m.z, h: Math.max(m.h, 0), yaw: Math.atan2(f.x, f.z) };
+    state.timeOfDay = env.hour;
     saveState(state);
   };
   for (const e of ['fish:caught', 'coins:changed', 'request:delivered', 'round:started', 'cooler:changed'] as const) game.events.on(e, persist);
@@ -101,7 +103,8 @@ async function boot(): Promise<void> {
       fishing.update(dt, time, !prompting);
       neighbors.update(dt);
       markers.update(time, dt);
-      env.update(time, player.controller.position, player.rig.camera, player.controller.up);
+      env.update(dt, time, player.controller.position, player.rig.camera, player.controller.up);
+      hud.clock(env.hour);
     },
   });
 
