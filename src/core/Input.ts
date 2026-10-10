@@ -29,6 +29,9 @@ const BINDINGS: Record<Action, Binding> = {
   back: { keys: ['Escape', 'KeyQ', 'Backspace'], pad: [1] },
 };
 
+/** Keys that mean "someone is playing with a keyboard" (phone volume/media keys also send keydown). */
+const GAME_KEYS = new Set(Object.values(BINDINGS).flatMap((b) => b.keys));
+
 const DEADZONE = 0.18;
 
 function dz(v: number): number {
@@ -59,13 +62,24 @@ export class Input {
   private now = new Map<Action, boolean>();
   private prev = new Map<Action, boolean>();
   private listeners = new Set<(d: Device) => void>();
+  /** Time of the last touch/pen contact — mobile browsers fire emulated mouse events after a tap. */
+  private lastTouch = -Infinity;
 
   constructor(target: HTMLElement) {
+    const noteTouch = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') this.lastTouch = performance.now();
+    };
+    window.addEventListener('pointerdown', noteTouch, { capture: true });
+    window.addEventListener('pointerup', noteTouch, { capture: true });
+    /** A real mouse event, not the compatibility mousedown a tap produces (e.g. on the canvas behind the start gate). */
+    const realMouse = (e: MouseEvent) =>
+      !(e as MouseEvent & { sourceCapabilities?: { firesTouchEvents?: boolean } }).sourceCapabilities?.firesTouchEvents &&
+      performance.now() - this.lastTouch > 1000;
     window.addEventListener('keydown', (e) => {
       if (e.code === 'Tab' || e.code === 'Space' || e.code.startsWith('Arrow')) e.preventDefault();
       if (!e.repeat) this.latched.add(e.code);
       this.keys.add(e.code);
-      this.setDevice('keyboard');
+      if (GAME_KEYS.has(e.code)) this.setDevice('keyboard'); // not on volume keys, on-screen keyboards / IME …
     });
     window.addEventListener('keyup', (e) => this.keys.delete(e.code));
     window.addEventListener('blur', () => {
@@ -75,6 +89,7 @@ export class Input {
       this.touchMove.set(0, 0);
     });
     target.addEventListener('mousedown', (e) => {
+      if (!realMouse(e)) return;
       this.mouseButtons.add(e.button);
       this.latched.add('mouse' + e.button);
       this.setDevice('keyboard');
