@@ -8,6 +8,7 @@ import { PLACEMENTS, SCATTER } from '../data/layout';
 import type { Placement, ScatterRule } from '../data/types';
 import { Collision, isCollisionName } from './Collision';
 import { Seabed } from './Seabed';
+import { QUALITY } from '../core/Quality';
 
 export interface AnchorInfo {
   /** World position. */
@@ -176,7 +177,9 @@ export class World {
     const accepted: { x: number; z: number; model: string; yaw: number; s: number; h: number }[] = [];
     const area = rule.area === 'island' ? { x: 0, z: 0, r: 135 } : rule.area;
     const grad = new THREE.Vector2();
-    for (let tries = 0; tries < rule.count * 30 && accepted.length < rule.count; tries++) {
+    // purely decorative scatter is thinned out on low quality (phones)
+    const count = rule.collide ? rule.count : Math.round(rule.count * QUALITY.decoDensity);
+    for (let tries = 0; tries < count * 30 && accepted.length < count; tries++) {
       const a = rand() * Math.PI * 2;
       const r = Math.sqrt(rand()) * area.r;
       const x = area.x + Math.cos(a) * r;

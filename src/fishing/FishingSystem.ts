@@ -300,7 +300,8 @@ export class FishingSystem {
   }
 
   private hudKey(): string {
-    return this.game.input.device === 'gamepad' ? 'RT' : 'F';
+    const d = this.game.input.device;
+    return d === 'gamepad' ? 'RT' : d === 'touch' ? '🎣' : 'F';
   }
 
   private onFightLanded(f: Fight): void {

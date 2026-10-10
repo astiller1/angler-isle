@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { EventBus } from './EventBus';
 import { Input } from './Input';
 import { Assets } from './Assets';
+import { QUALITY } from './Quality';
 
 /** Anything that wants a per-frame update. */
 export interface System {
@@ -25,13 +26,13 @@ export class Game {
   onFrame: ((dt: number) => void) | null = null;
 
   constructor(readonly canvas: HTMLCanvasElement) {
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: QUALITY.antialias, powerPreference: 'high-performance' });
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, QUALITY.pixelRatio));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.toneMapping = THREE.NeutralToneMapping;
     this.renderer.toneMappingExposure = 1.0;
     this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = QUALITY.softShadows ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
     this.input = new Input(canvas);
     window.addEventListener('resize', () => this.resize());
   }

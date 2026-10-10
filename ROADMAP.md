@@ -18,6 +18,11 @@
 - Shop at the tackle shack (Rocco the raccoon) with rod tiers 1–3: Bambus (free) → Glasfaser (180) →
   Karbon (450); cast range, tension limit, reel speed; the tarpon needs tier 2
 
+## Version 3 ✔
+- Smartphone support (landscape only): touch joystick, drag camera, context action button, jump/cancel,
+  tap-to-play gate with fullscreen + landscape lock (Android), rotate hint in portrait, compact HUD,
+  low-quality render profile, web app manifest (landscape, fullscreen)
+
 ## Milestone 2 — Shop & upgrades (rest)
 - Coolers 4 → 6 → 8 (cooler view already reads slot count from data)
 - Bait items that bias spot species tables

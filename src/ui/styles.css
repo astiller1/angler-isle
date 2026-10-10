@@ -101,7 +101,7 @@ kbd.pad-RT, kbd.pad-LT { background: #555; border-radius: 8px; }
 .rarity { padding: 1px 8px; border-radius: 999px; color: #fff; font-size: 12px; }
 .rarity.common { background: #8bbf7a; } .rarity.uncommon { background: #4f8fd6; } .rarity.rare { background: #b55fd6; }
 
-.menu { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 7vh; pointer-events: auto;
+.menu { position: absolute; inset: 0; z-index: 5; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 7vh; pointer-events: auto;
   background: linear-gradient(transparent 50%, rgba(74,52,36,.25)); }
 .menu .panel { width: min(560px, 92vw); padding: 14px 18px 12px; animation: toastIn .2s ease; }
 .menu-title { font-size: 20px; font-weight: 900; color: var(--accent); }

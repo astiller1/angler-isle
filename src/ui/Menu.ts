@@ -103,17 +103,23 @@ export class Menu {
             )
             .join('')}
         </ul>
-        <div class="menu-help">${glyph(this.input.device, 'confirm')} wählen · ${glyph(this.input.device, 'back')} zurück</div>
+        <div class="menu-help">${this.input.device === 'touch' ? 'Antippen zum Wählen' : `${glyph(this.input.device, 'confirm')} wählen · ${glyph(this.input.device, 'back')} zurück`}</div>
       </div>`;
     this.el.querySelectorAll('li').forEach((li) => {
       const i = Number((li as HTMLElement).dataset.i);
-      li.addEventListener('mouseenter', () => {
-        if (!this.spec?.options[i].disabled && this.index !== i) {
+      li.addEventListener('pointerenter', (e) => {
+        // hover highlight only for real mice (re-rendering under a finger would swallow the tap)
+        if (e.pointerType === 'mouse' && !this.spec?.options[i].disabled && this.index !== i) {
           this.index = i;
           this.render();
         }
       });
-      li.addEventListener('click', () => !this.spec?.options[i].disabled && this.close(i));
+      li.addEventListener('pointerup', (e) => {
+        e.preventDefault();
+        // ignore the tail of the tap that opened this menu
+        if (performance.now() - this.openedAt < 250) return;
+        if (this.spec && !this.spec.options[i].disabled) this.close(i);
+      });
     });
   }
 }

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import './ui/styles.css';
+import './ui/mobile.css';
 import { Game } from './core/Game';
 import { World } from './world/World';
 import { Environment } from './world/Environment';
@@ -10,6 +11,8 @@ import { SpotMarkers } from './fishing/SpotMarkers';
 import { Neighbors } from './npc/Neighbors';
 import { Hud } from './ui/Hud';
 import { renderFishIcons } from './ui/FishIcons';
+import { TouchControls } from './ui/TouchControls';
+import { MobileShell } from './ui/MobileShell';
 import { loadState, saveState } from './state/save';
 import { validateData } from './data/validate';
 import { T, fmt } from './data/strings';
@@ -38,6 +41,8 @@ async function boot(): Promise<void> {
   const env = new Environment(game.scene, world.seabed, state.timeOfDay);
   env.setGlows(world.glows);
   const hud = new Hud(game, state, renderFishIcons(game.assets));
+  const touch = new TouchControls(game.input);
+  new MobileShell(game.input);
   const player = new Player(game, world, state);
   const interaction = new InteractionSystem(game, player, hud);
 
@@ -71,7 +76,7 @@ async function boot(): Promise<void> {
         rackRod.parent?.remove(rackRod);
         player.giveRod(rackRod);
         interaction.remove('rod-rack');
-        hud.toast(fmt(T.gotRod, { fish: game.input.device === 'gamepad' ? 'RT' : 'F' }), 'good');
+        hud.toast(fmt(T.gotRod, { fish: game.input.device === 'gamepad' ? 'RT' : game.input.device === 'touch' ? 'den 🎣-Knopf' : 'F' }), 'good');
         game.events.emit('rod:taken');
         saveState(state);
       },
@@ -100,6 +105,7 @@ async function boot(): Promise<void> {
   game.add({
     update(dt, time) {
       hud.update();
+      touch.update({ prompt: hud.current, fishing: fishing.phase, menuOpen: hud.menu.isOpen });
       player.lock('menu', hud.menu.isOpen);
       player.update(dt);
       const prompting = interaction.update();
@@ -118,6 +124,7 @@ async function boot(): Promise<void> {
   (window as unknown as Record<string, unknown>).angler = { game, state, player, world, fishing, neighbors, env };
 
   game.start();
+  await MobileShell.startGate();
 
   if (isNew) {
     player.lock('intro', true);

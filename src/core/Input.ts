@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 
-export type Device = 'keyboard' | 'gamepad';
+export type Device = 'keyboard' | 'gamepad' | 'touch';
+
+/** True on phones/tablets (coarse pointer, no hover). */
+export const IS_TOUCH_DEVICE = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches;
 export type Action =
   | 'jump' | 'interact' | 'fish' | 'cancel' | 'sprint'
   | 'up' | 'down' | 'left' | 'right' | 'confirm' | 'back';
@@ -39,7 +42,15 @@ export class Input {
   readonly look = new THREE.Vector2();
   /** Mouse drag delta in pixels since last frame. */
   readonly mouseDelta = new THREE.Vector2();
-  device: Device = 'keyboard';
+  device: Device = IS_TOUCH_DEVICE ? 'touch' : 'keyboard';
+  /** Touch joystick vector (x = right, y = forward), set by TouchControls. */
+  readonly touchMove = new THREE.Vector2();
+  /** Pixel-to-camera factor for touch drags (relative to mouse drags). */
+  touchLookScale = 1.5;
+  /** Ignore all input (e.g. the phone is held upright). */
+  paused = false;
+  private virtualHeld = new Set<Action>();
+  private virtualLatched = new Set<Action>();
 
   private keys = new Set<string>();
   /** Keys/buttons that went down since the last update — so quick taps are never missed at low frame rates. */
@@ -60,6 +71,8 @@ export class Input {
     window.addEventListener('blur', () => {
       this.keys.clear();
       this.mouseButtons.clear();
+      this.virtualHeld.clear();
+      this.touchMove.set(0, 0);
     });
     target.addEventListener('mousedown', (e) => {
       this.mouseButtons.add(e.button);
@@ -74,11 +87,27 @@ export class Input {
     target.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 
+  /** On-screen touch buttons press/release game actions. */
+  setVirtual(a: Action, down: boolean): void {
+    if (down) {
+      this.virtualHeld.add(a);
+      this.virtualLatched.add(a);
+      this.setDevice('touch');
+    } else this.virtualHeld.delete(a);
+  }
+
+  /** Touch-drag camera look (pixels). */
+  addTouchLook(dx: number, dy: number): void {
+    this.mouseDelta.x += dx * this.touchLookScale;
+    this.mouseDelta.y += dy * this.touchLookScale;
+    this.setDevice('touch');
+  }
+
   onDeviceChange(fn: (d: Device) => void): void {
     this.listeners.add(fn);
   }
 
-  private setDevice(d: Device): void {
+  setDevice(d: Device): void {
     if (d !== this.device) {
       this.device = d;
       this.listeners.forEach((fn) => fn(d));
@@ -105,7 +134,8 @@ export class Input {
         (b.mouse ?? []).some((m) => this.mouseButtons.has(m) || this.latched.has('mouse' + m));
       const p = b.pad.some(padDown);
       if (p) padActive = true;
-      this.now.set(action, k || p);
+      const v = this.virtualHeld.has(action) || this.virtualLatched.has(action);
+      this.now.set(action, !this.paused && (k || p || v));
     }
 
     const kx = (this.keys.has('KeyD') ? 1 : 0) - (this.keys.has('KeyA') ? 1 : 0);
@@ -126,8 +156,14 @@ export class Input {
       this.look.x += rx;
       this.look.y += ry;
     }
+    this.move.add(this.touchMove);
     if (this.move.lengthSq() > 1) this.move.normalize();
+    if (this.paused) {
+      this.move.set(0, 0);
+      this.look.set(0, 0);
+    }
     this.latched.clear();
+    this.virtualLatched.clear();
     if (padActive) this.setDevice('gamepad');
   }
 

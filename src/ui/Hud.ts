@@ -130,8 +130,12 @@ export class Hud {
     this.helpEl.textContent = this.game.input.device === 'gamepad' ? T.controlsGamepad : T.controlsKeyboard;
   }
 
+  /** The prompt currently shown (the touch context button mirrors it). */
+  current: { action: Action; text: string } | null = null;
+
   /** Show "[E] Reden" style prompt; null hides it. */
   prompt(action: Action | null, text = ''): void {
+    this.current = action ? { action, text } : null;
     const key = action ? `${action}|${text}|${this.game.input.device}` : '';
     if (key === this.promptKey) return;
     this.promptKey = key;

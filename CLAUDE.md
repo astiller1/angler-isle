@@ -67,6 +67,13 @@ no physics engine — "up" changes across the planet). Plain DOM/CSS HUD. Vitest
   by night; sky/fog/water/ambient colors interpolate `SKY_KEYS` (`data/daycycle.ts`). Lantern glows come
   from `GLOW_*` empties in the models.
 - `src/economy/` — `shop.ts` (pure rod-upgrade rules), `ShopSystem.ts` (Rocco + menu), `trader.ts`.
+- Mobile (phones are landscape-only): `ui/TouchControls.ts` (floating joystick left, drag-look right, context
+  action button mirroring `Hud.current` + fishing phase, jump, cancel) feeds `Input` via `setVirtual` /
+  `touchMove` / `addTouchLook` (device `'touch'`). `ui/MobileShell.ts`: tap-to-play gate (fullscreen +
+  `screen.orientation.lock('landscape')` best effort — iOS can't lock), portrait "rotate" overlay that pauses
+  input, `body.compact` HUD layout (`ui/mobile.css`). `core/Quality.ts`: `low` profile on touch/small screens
+  (pixel ratio 1.3, 1024 shadows, 45 % decoration), `?quality=high|low` overrides. Test touch in the browser pane
+  with a viewport narrower than 768 px (e.g. 740×360) — only then is touch emulated.
 - Movement: surfaces with normal·up > `PLAYER_SETTINGS.walkable` count as ground and are resolved straight
   up (no sliding on slopes); steeper ones are walls. Ground snapping keeps the cat on slopes going down.
 - `src/inventory/`, `src/npc/`, `src/economy/`, `src/interaction/`, `src/ui/`, `src/state/` — one concern each.

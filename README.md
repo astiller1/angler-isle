@@ -7,14 +7,17 @@ winzigen Wasserplaneten, fängst Fische, erfüllst die Wünsche der Nachbarn und
 
 ## Steuerung
 
-| | Tastatur & Maus | Gamepad |
-|---|---|---|
-| Laufen | WASD (Shift = rennen) | Linker Stick (LT = rennen) |
-| Kamera | Pfeiltasten / rechte Maustaste ziehen | Rechter Stick |
-| Springen | Leertaste | A |
-| Reden / Nehmen / Kaufen | E | X |
-| Angeln: Auswerfen (halten), Anschlagen, Einholen (halten) | F / linke Maustaste | RT |
-| Abbrechen | Q | B |
+| | Tastatur & Maus | Gamepad | Smartphone (quer) |
+|---|---|---|---|
+| Laufen | WASD (Shift = rennen) | Linker Stick (LT = rennen) | Daumen links aufsetzen & ziehen (weit = rennen) |
+| Kamera | Pfeiltasten / rechte Maustaste ziehen | Rechter Stick | Rechts wischen |
+| Springen | Leertaste | A | ⤒-Knopf |
+| Reden / Nehmen / Kaufen | E | X | Großer Aktionsknopf (💬 / ✋ / 🛒) |
+| Angeln: Auswerfen (halten), Anschlagen, Einholen (halten) | F / linke Maustaste | RT | Großer Aktionsknopf (🎣) |
+| Abbrechen | Q | B | ✕-Knopf |
+
+Auf dem Handy wird quer gespielt: Beim Start auf „Tippen zum Spielen“ drücken (Android: Vollbild + Querformat).
+Tipp: Über „Zum Startbildschirm hinzufügen“ startet die Insel wie eine App im Vollbild.
 
 ## So geht's
 1. Nimm dir im Köderladen am Hafen die Bambusrute vom Regal.

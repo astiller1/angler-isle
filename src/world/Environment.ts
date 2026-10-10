@@ -3,6 +3,7 @@ import { Sky } from '../planet/Sky';
 import { Water } from '../planet/Water';
 import { DAY, skyKeysAt, sunDirection, type SkyKey } from '../data/daycycle';
 import type { Seabed } from './Seabed';
+import { QUALITY } from '../core/Quality';
 
 export const LIGHT_SETTINGS = {
   fogDensity: 0.0032,
@@ -63,7 +64,7 @@ export class Environment {
 
     this.sun = new THREE.DirectionalLight('#ffffff', 2);
     this.sun.castShadow = true;
-    this.sun.shadow.mapSize.set(2048, 2048);
+    this.sun.shadow.mapSize.set(QUALITY.shadowMapSize, QUALITY.shadowMapSize);
     const c = this.sun.shadow.camera;
     c.left = c.bottom = -LIGHT_SETTINGS.shadowSize;
     c.right = c.top = LIGHT_SETTINGS.shadowSize;

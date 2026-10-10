@@ -1,0 +1,13 @@
+{
+  "name": "Angler-Insel",
+  "short_name": "Angler-Insel",
+  "description": "Gemütliches 3D-Angelspiel auf einer winzigen Karibik-Planeteninsel",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#2482da",
+  "theme_color": "#2482da",
+  "lang": "de",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
