@@ -37,7 +37,12 @@ npm run art          # rebuild ALL .glb from Blender scripts (Blender 4.2+, auto
 npm run art -- fish  # rebuild scripts whose path contains "fish"
 npm run art -- --open characters/cat   # open Blender GUI with that model built (for hand-editing)
 node tools/glb-info.mjs art/props/cooler_small.glb   # print node tree of a glb
+npm run deploy       # build + force-push dist/ to the gh-pages branch → https://astiller1.github.io/angler-isle/
 ```
+Repo: https://github.com/astiller1/angler-isle (public; `main` = source, `gh-pages` = built game, Pages serves
+`gh-pages`). Vite `base: './'` keeps asset URLs relative so the build works under the `/angler-isle/` sub-path.
+Deploying uses a local script (not GitHub Actions) because the gh token lacks the `workflow` scope.
+On Windows PowerShell use `npm.cmd …` if script execution is disabled.
 
 ## Tech stack
 Three.js + Vite + TypeScript (strict). `three-mesh-bvh` for collision/raycasts (custom capsule controller,
