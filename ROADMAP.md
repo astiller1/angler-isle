@@ -26,10 +26,13 @@
 ## Version 4 ✔
 - Background music with mute via M / speaker button (first version: live-synthesized — replaced in v5)
 
-## Version 5 ✔
-- Human-made music: "Feel Good Island (Loop)" by Brandon Morris (CC0) with the bass removed (24 dB/oct
-  high-pass at 200 Hz) + compressor/make-up
-  gain; softer and quieter at night; ready for an extra night track (cross-fade)
+## Version 5 (replaced)
+- Tried a CC0 recording ("Feel Good Island") with bass removal — rejected (sounded odd)
+
+## Version 6 ✔
+- Music = 8 public-domain Jamaican folk tunes (Jekyll 1907) in a 5.5 KB data file, auto-harmonized and played
+  by a synthesized island band (steel pan, Karplus-Strong ukulele, light bass, shaker); dances by day,
+  waltzes on marimba at night
 
 ## Milestone 2 — Shop & upgrades (rest)
 - Coolers 4 → 6 → 8 (cooler view already reads slot count from data)

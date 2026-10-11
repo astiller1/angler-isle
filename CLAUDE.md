@@ -74,15 +74,17 @@ no physics engine — "up" changes across the planet). Plain DOM/CSS HUD. Vitest
   input, `body.compact` HUD layout (`ui/mobile.css`). `core/Quality.ts`: `low` profile on touch/small screens
   (pixel ratio 1.3, 1024 shadows, 45 % decoration), `?quality=high|low` overrides. Test touch in the browser pane
   with a viewport narrower than 768 px (e.g. 740×360) — only then is touch emulated.
-- Audio: human-made, license-free tracks in `public/music/` (each as `.ogg` + `.mp3` fallback for Safari),
-  listed with author/license/source in `data/music.ts` (credits appear in the intro + README — keep them
-  updated). `audio/MusicPlayer.ts` decodes them into a seamless `AudioBufferSourceNode` loop (encoder padding
-  trimmed) → per-track low-shelf EQ (`bassHz`/`bassDb`) → night low-pass → master. With only `any`/`day`
-  tracks the night just softens the sound; add a `when: 'night'` track to get a cross-fade. Volume/mute per
-  browser in localStorage (`M` / speaker button). Audio starts after the first user gesture; suspended while
-  the tab is hidden. `window.anglerMusic()` for debugging. (The user rejected procedurally generated music —
-  "zu KI-generiert"; don't reintroduce it.) MP3s can be made with Blender's bundled encoder
-  (`bpy.ops.sound.mixdown`, see git history) since ffmpeg isn't installed.
+- Audio: real *human* melodies, no audio files. `data/tunes.ts` holds public-domain traditional Jamaican folk
+  tunes from W. Jekyll, "Jamaican Song and Story" (1907, Project Gutenberg #35410, MusicXML per tune) as
+  compact `"midi:len …"` strings (convert more with `tools/musicxml-to-tune.mjs`). `audio/tune.ts` (pure,
+  tested) parses them and harmonizes with diatonic chords (I, V7, IV, vi, ii per beat / dotted beat, change
+  penalty, tonic at the end). `audio/MusicPlayer.ts` plays them with a small band: steel pan melody (marimba
+  at night), Karplus-Strong ukulele strums, light plucked bass, shaker; groove per meter (2/4 calypso
+  off-beats, 6/8 lilt, 3/4 waltz). Day = dances, night = waltzes (`when`), switching at tune boundaries.
+  Settings in `data/music.ts`. Volume/mute per browser in localStorage (`M` / speaker button); audio starts
+  after the first user gesture; suspended while the tab is hidden. `window.anglerMusic()` for debugging.
+  History: random procedural melodies were rejected ("zu KI-generiert"); a CC0 recording was rejected
+  (bass, EQ sounded odd). Keep melodies human-made; only arrangement is generated.
 - Movement: surfaces with normal·up > `PLAYER_SETTINGS.walkable` count as ground and are resolved straight
   up (no sliding on slopes); steeper ones are walls. Ground snapping keeps the cat on slopes going down.
 - `src/inventory/`, `src/npc/`, `src/economy/`, `src/interaction/`, `src/ui/`, `src/state/` — one concern each.

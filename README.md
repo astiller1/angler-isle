@@ -40,5 +40,7 @@ npm run deploy   # bauen und auf GitHub Pages veröffentlichen
 Three.js + Vite + TypeScript. Alle 3D-Modelle sind Blender-Python-Skripte in `art/`. Details in `CLAUDE.md`.
 
 ## Credits
-- Musik: „Feel Good Island (Loop)“ von **Brandon Morris**, Loop-Schnitt von **AntumDeluge** — CC0
-  ([OpenGameArt](https://opengameart.org/content/feel-good-island-loop))
+- Musik: traditionelle jamaikanische Volksmelodien (gemeinfrei) aus Walter Jekyll, *Jamaican Song and Story*
+  (1907), digitalisiert von [Project Gutenberg](https://www.gutenberg.org/ebooks/35410) — u. a. „Linstead
+  Market“, „Hullo me honey!“, „Birdyzeena“, „Merry-go-round“ und die Walzer „Marty, Marty“ und „Breezy“.
+  Arrangement (Steel-Drum, Ukulele, Bass, Shaker) wird im Browser erzeugt.
