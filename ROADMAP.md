@@ -27,7 +27,8 @@
 - Background music with mute via M / speaker button (first version: live-synthesized — replaced in v5)
 
 ## Version 5 ✔
-- Human-made music: "Feel Good Island (Loop)" by Brandon Morris (CC0) with bass cut (−11 dB) and make-up
+- Human-made music: "Feel Good Island (Loop)" by Brandon Morris (CC0) with the bass removed (24 dB/oct
+  high-pass at 200 Hz) + compressor/make-up
   gain; softer and quieter at night; ready for an extra night track (cross-fade)
 
 ## Milestone 2 — Shop & upgrades (rest)

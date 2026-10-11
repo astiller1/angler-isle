@@ -46,6 +46,11 @@ function findLoop(buf: AudioBuffer): [number, number] {
 export class MusicPlayer {
   readonly master: GainNode;
   private bassCut: BiquadFilterNode;
+  /** Two cascaded high-passes (24 dB/oct) that remove everything below the track's removeBelowHz. */
+  private hp: BiquadFilterNode[] = [];
+  /** Evens out what is left after heavy EQ (thin, peaky material) — followed by make-up gain. */
+  private comp: DynamicsCompressorNode;
+  private makeup: GainNode;
   private nightFilter: BiquadFilterNode;
   private nightGain: GainNode;
   private loaded = new Map<string, Loaded>();
@@ -64,10 +69,16 @@ export class MusicPlayer {
     this.nightFilter.Q.value = 0.5;
     this.bassCut = ctx.createBiquadFilter();
     this.bassCut.type = 'lowshelf';
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass';
-    hp.frequency.value = 35;
-    this.bassCut.connect(hp).connect(this.nightFilter).connect(this.nightGain).connect(this.master).connect(ctx.destination);
+    this.hp = [0, 1].map(() => {
+      const f = ctx.createBiquadFilter();
+      f.type = 'highpass';
+      f.frequency.value = 35;
+      f.Q.value = 0.707;
+      return f;
+    });
+    this.comp = ctx.createDynamicsCompressor();
+    this.makeup = ctx.createGain();
+    this.bassCut.connect(this.hp[0]).connect(this.hp[1]).connect(this.comp).connect(this.makeup).connect(this.nightFilter).connect(this.nightGain).connect(this.master).connect(ctx.destination);
   }
 
   /** Fetch and decode all tracks (call after the context exists). */
@@ -142,6 +153,14 @@ export class MusicPlayer {
     }
     this.bassCut.frequency.setValueAtTime(l.track.bassHz, t);
     this.bassCut.gain.setValueAtTime(l.track.bassDb, t);
+    for (const f of this.hp) f.frequency.setValueAtTime(l.track.removeBelowHz ?? 35, t);
+    const c = l.track.compress;
+    this.comp.threshold.setValueAtTime(c ? c.thresholdDb : 0, t);
+    this.comp.ratio.setValueAtTime(c ? c.ratio : 1, t);
+    this.comp.knee.setValueAtTime(c ? 8 : 0, t);
+    this.comp.attack.setValueAtTime(0.004, t);
+    this.comp.release.setValueAtTime(0.25, t);
+    this.makeup.gain.setValueAtTime(Math.pow(10, (c ? c.makeupDb : 0) / 20), t);
     const source = this.ctx.createBufferSource();
     source.buffer = l.buffer;
     source.loop = true;

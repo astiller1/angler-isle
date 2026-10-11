@@ -17,6 +17,10 @@ export interface MusicTrack {
   /** Low-shelf EQ: frequencies below `bassHz` are cut by `bassDb` (negative = quieter bass). */
   bassHz: number;
   bassDb: number;
+  /** Remove everything below this frequency (steep 24 dB/oct high-pass). Omit to keep the full bass. */
+  removeBelowHz?: number;
+  /** Optional compressor after the EQ (for thin/peaky material) with make-up gain in dB. */
+  compress?: { thresholdDb: number; ratio: number; makeupDb: number };
 }
 
 export const MUSIC_TRACKS: MusicTrack[] = [
@@ -28,10 +32,13 @@ export const MUSIC_TRACKS: MusicTrack[] = [
     source: 'https://opengameart.org/content/feel-good-island-loop',
     file: 'feel_good_island_loop',
     when: 'any',
-    // the bass carries most of this track's energy: after the cut it needs ~+7 dB make-up gain (peak stays < 0.75)
-    gain: 2.2,
+    // the bass is removed completely (user request). It carried most of the energy; what remains is thin and
+    // peaky, so a compressor + make-up gain brings it back to a pleasant level (RMS ≈ −20 dB, peak ≈ 0.85).
+    gain: 1,
     bassHz: 220,
-    bassDb: -11,
+    bassDb: 0,
+    removeBelowHz: 200,
+    compress: { thresholdDb: -45, ratio: 8, makeupDb: 10.6 },
   },
 ];
 
