@@ -203,11 +203,13 @@ describe('shop', () => {
     expect(buyNextRod(s)).toBeNull(); // max tier
     expect(rodOffers(s).every((o) => o.status === 'owned')).toBe(true);
   });
-  it('cannot buy before taking the starter rod', () => {
+  it('a new game starts with the bamboo rod and can buy the next tier right away', () => {
     const s = newGameState();
+    expect(s.hasRod).toBe(true);
+    expect(s.rodTier).toBe(1);
     s.coins = 1000;
-    expect(buyNextRod(s)).toBeNull();
-    expect(rodOffers(s).every((o) => o.status === 'locked')).toBe(true);
+    expect(rodOffers(s)[0].status).toBe('buyable');
+    expect(buyNextRod(s)?.tier).toBe(2);
   });
 });
 
