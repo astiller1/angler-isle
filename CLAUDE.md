@@ -5,7 +5,7 @@ water planet** with a clearly curved horizon. The angler is a **cartoon cat**; n
 animals. In-game language is **German** (all player-facing text lives in `src/data/strings.ts`).
 
 ## Game vision (summary — full text lives in the first session prompt; keep this in sync)
-- One main island (+ tiny offshore islet later): harbor village with colorful stilt houses, mangroves, rocky
+- One main island (+ tiny offshore islet, Kokos-Inselchen): harbor village with colorful stilt houses, mangroves, rocky
   coast, coral-reef lagoon, jungle hill, river mouth, surf beach — connected by sandy paths and boardwalks.
 - Scale: ~2–3 min to walk around the island, 20–40 s between neighboring fishing spots.
   5–6 shore spots + 2–3 boat-only spots, each with its own species and look.
@@ -58,15 +58,25 @@ no physics engine — "up" changes across the planet). Plain DOM/CSS HUD. Vitest
 - `src/world/` — builds the island from `data/layout.ts`: static models are *bent* onto the sphere per vertex
   (so long piers follow the curvature), scattered vegetation is instanced. Collision = terrain + all `COL_*`
   proxies merged into one BVH (`Collision.ts`).
-- `src/player/` — `PlayerController` (capsule vs BVH, radial gravity, movement modes — `OnFoot` now, `InBoat`
-  later), `CameraRig` (orbit in the player's tangent frame, parallel-transported reference, gentle auto-follow),
+- `src/player/` — `PlayerController` (capsule vs BVH, radial gravity, movement modes — `OnFoot`, `InBoat`
+  in `boat/`), `CameraRig` (orbit in the player's tangent frame, parallel-transported reference, gentle auto-follow),
   `Character` (procedural pose animation of named model parts), `Player` (glues body, cat, rod, cooler, camera).
 - `src/fishing/` — `logic.ts` is a pure, unit-tested state machine + tension model (a fish whose
   `minRodTier` is above the rod never tires and strips the line); `FishingSystem.ts` does visuals.
 - `src/world/Environment.ts` — day–night cycle: one directional light follows the sun by day and the moon
   by night; sky/fog/water/ambient colors interpolate `SKY_KEYS` (`data/daycycle.ts`). Lantern glows come
   from `GLOW_*` empties in the models.
-- `src/economy/` — `shop.ts` (pure rod-upgrade rules), `ShopSystem.ts` (Rocco + menu), `trader.ts`.
+- `src/economy/` — `shop.ts` (pure rules: rod tiers, boat → motor), `ShopSystem.ts` (Rocco + menu), `trader.ts`.
+- `src/boat/` — `Boat.ts`: rowboat model floating on the waves at a map pose (x, z, yaw), camera-relative steering
+  (turns toward the stick, pulls forward when facing it), grounding where the seabed is shallower than
+  `BOAT_SETTINGS.draft` or a keel ray hits collision (posts, pier skirts, mangroves); `InBoat` is the
+  `MovementMode` that drives it and seats the cat (`ANCHOR_seat`). `BoatSystem.ts`: piers (`data/boat.ts` DOCKS,
+  local stand/moor offsets in the pier's frame; jetties are placed from that data), board/leave interactables,
+  save (`state.boat`). Boat spots (`access: 'boat'`) are fished from the boat like shore spots.
+- Map: `map/Exploration.ts` (pure fog grid, base64 in `state.map.fog`), `map/MapSystem.ts` (reveals around the cat,
+  discovers markers, `map:hint` from neighbors), `ui/MapView.ts` (base map painted once from the Seabed height
+  field + paths + building footprints, fog layer, DOM markers with label decluttering). Settings and places
+  in `data/map.ts`.
 - Mobile (phones are landscape-only): `ui/TouchControls.ts` (floating joystick left, drag-look right, context
   action button mirroring `Hud.current` + fishing phase, jump, cancel) feeds `Input` via `setVirtual` /
   `touchMove` / `addTouchLook` (device `'touch'`). `ui/MobileShell.ts`: tap-to-play gate (fullscreen +

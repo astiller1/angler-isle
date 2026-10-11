@@ -1,14 +1,14 @@
 import type { Action, Device } from '../core/Input';
 
 const KEY: Partial<Record<Action, string>> = {
-  interact: 'E', fish: 'F', cancel: 'Q', jump: 'Leertaste', confirm: 'E', back: 'Esc', sprint: 'Shift', menu: 'Esc',
+  interact: 'E', fish: 'F', cancel: 'Q', jump: 'Leertaste', confirm: 'E', back: 'Esc', sprint: 'Shift', menu: 'Esc', map: 'K',
 };
 const PAD: Partial<Record<Action, string>> = {
-  interact: 'X', fish: 'RT', cancel: 'B', jump: 'A', confirm: 'A', back: 'B', sprint: 'LT', menu: 'Start',
+  interact: 'X', fish: 'RT', cancel: 'B', jump: 'A', confirm: 'A', back: 'B', sprint: 'LT', menu: 'Start', map: 'Select',
 };
 
 const TOUCH: Partial<Record<Action, string>> = {
-  interact: '💬', fish: '🎣', cancel: '✕', jump: '⤒', confirm: 'Tippen', back: '✕', sprint: '',
+  interact: '💬', fish: '🎣', cancel: '✕', jump: '⤒', confirm: 'Tippen', back: '✕', sprint: '', map: '🗺',
 };
 
 /** Button label as a little key cap, matching the last used device. */

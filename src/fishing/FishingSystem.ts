@@ -48,6 +48,8 @@ export class FishingSystem {
   private rng = Math.random;
   private tmp = new THREE.Vector3();
   private time = 0;
+  /** Extra condition for casting (e.g. the boat has to be nearly stopped). */
+  canCast: () => boolean = () => true;
 
   constructor(
     private game: Game,
@@ -97,11 +99,12 @@ export class FishingSystem {
     switch (this.phase) {
       case 'idle': {
         if (menuOpen || !promptFree) break;
-        const canFish = this.state.hasRod && this.player.controller.grounded && !this.player.locked;
+        const canFish = this.state.hasRod && this.player.controller.grounded && !this.player.locked && this.canCast();
         if (canFish && this.waterAhead) this.hud.prompt('fish', T.cast);
         else this.hud.prompt(null);
         if (inp.pressed('fish') && !this.player.locked) {
           if (!this.state.hasRod) this.hud.toast(T.noRod, 'warn');
+          else if (!this.canCast()) this.hud.toast(T.noFishFromBoat, 'info');
           else if (this.player.controller.grounded) this.beginCharge();
         }
         break;
@@ -226,7 +229,7 @@ export class FishingSystem {
     }
     this.ring(this.bobberPos, 1.2);
     this.ring(this.bobberPos, 0.6);
-    const spot = SPOTS.find((s) => s.access === 'shore' && Math.hypot(this.target.x - s.x, this.target.z - s.z) <= s.radius) ?? null;
+    const spot = SPOTS.find((s) => Math.hypot(this.target.x - s.x, this.target.z - s.z) <= s.radius) ?? null;
     this.spot = spot;
     if (!spot) this.hud.toast(T.noFishHere, 'info');
     this.scheduleBite();
@@ -478,7 +481,7 @@ export class FishingSystem {
         }
       }
     }
-    const near = SPOTS.find((s) => s.access === 'shore' && Math.hypot(m.x - s.x, m.z - s.z) < s.radius + this.rod.castMax + 2) ?? null;
+    const near = SPOTS.find((s) => Math.hypot(m.x - s.x, m.z - s.z) < s.radius + this.rod.castMax + 2) ?? null;
     if (near !== this.nearSpot) {
       this.nearSpot = near;
       this.hud.spotName(near ? near.name : null);

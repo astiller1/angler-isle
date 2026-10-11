@@ -1,4 +1,4 @@
-import { RODS, rodTier, type RodTier } from '../data/upgrades';
+import { BOAT, RODS, rodTier, type RodTier } from '../data/upgrades';
 import type { GameState } from '../state/GameState';
 
 /** Pure shop rules for rod upgrades. */
@@ -26,4 +26,35 @@ export function buyNextRod(state: GameState): RodTier | null {
   state.coins -= next.price;
   state.rodTier = next.tier;
   return next;
+}
+
+/** Boat & motor: the motor needs the boat first. */
+export type GearOffer =
+  | { id: 'boat' | 'motor'; name: string; price: number; status: 'owned' | 'buyable' }
+  | { id: 'boat' | 'motor'; name: string; price: number; status: 'tooExpensive'; missing: number }
+  | { id: 'boat' | 'motor'; name: string; price: number; status: 'locked'; requires: string };
+
+export function boatOffers(state: GameState): GearOffer[] {
+  const offer = (id: 'boat' | 'motor', name: string, price: number, owned: boolean, requires: string | null): GearOffer => {
+    if (owned) return { id, name, price, status: 'owned' };
+    if (requires) return { id, name, price, status: 'locked', requires };
+    if (state.coins < price) return { id, name, price, status: 'tooExpensive', missing: price - state.coins };
+    return { id, name, price, status: 'buyable' };
+  };
+  return [
+    offer('boat', BOAT.name, BOAT.price, state.boat.owned, null),
+    offer('motor', BOAT.motor.name, BOAT.motor.price, state.boat.motor, state.boat.owned ? null : BOAT.name),
+  ];
+}
+
+/** Buy the boat or the motor. Returns false (and changes nothing) if not possible. */
+export function buyGear(state: GameState, id: 'boat' | 'motor'): boolean {
+  const o = boatOffers(state).find((x) => x.id === id);
+  if (!o || o.status !== 'buyable') return false;
+  state.coins -= o.price;
+  if (id === 'boat') {
+    state.boat.owned = true;
+    state.boat.dock = 'hafen';
+  } else state.boat.motor = true;
+  return true;
 }

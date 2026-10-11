@@ -22,6 +22,13 @@ import { T, fmt } from './data/strings';
 import { RODS, rodTier } from './data/upgrades';
 import { ShopSystem } from './economy/ShopSystem';
 import { mapToWorld, orientationAt, toTangent, worldToMap } from './planet/Planet';
+import { BoatSystem } from './boat/BoatSystem';
+import { MapSystem, type MapMarker } from './map/MapSystem';
+import { MapView } from './ui/MapView';
+import { PERSON_ICONS, PLACES } from './data/map';
+import { SPOTS } from './data/spots';
+import { NEIGHBORS, TRADER } from './data/neighbors';
+import type { Device } from './core/Input';
 
 async function boot(): Promise<void> {
   const canvas = document.getElementById('game') as HTMLCanvasElement;
@@ -90,6 +97,35 @@ async function boot(): Promise<void> {
   hud.renderAll();
   const fishing = new FishingSystem(game, player, hud, state, world.seabed);
 
+  // ---- rowboat (bought at Rocco's): board / leave at the piers
+  const boats = new BoatSystem(game, world, player, hud, state, interaction);
+  game.events.on('gear:bought', ({ id }) => (id === 'boat' ? boats.spawnBoat() : boats.setMotor(true)));
+  fishing.canCast = () => boats.canFish;
+
+  // ---- map with fog of war: spots, piers, neighbors and places appear once explored
+  const mapSys = new MapSystem(game, hud, state);
+  const at = (anchor: string) => world.anchor(anchor);
+  const mapMarkers: MapMarker[] = [
+    ...SPOTS.map((s): MapMarker => ({ id: `spot:${s.id}`, kind: s.access === 'boat' ? 'boatspot' : 'spot', icon: '🎣', name: s.name, x: s.x, z: s.z })),
+    ...boats.docks.map((d): MapMarker => ({ id: `dock:${d.def.id}`, kind: 'dock', icon: '⚓', name: d.def.name, x: d.moor.x, z: d.moor.z })),
+    ...NEIGHBORS.map((n): MapMarker => ({ id: n.id, kind: 'person', icon: PERSON_ICONS[n.id] ?? '🙂', name: n.name, sub: n.title, x: at(n.at.anchor).x, z: at(n.at.anchor).z })),
+    { id: TRADER.id, kind: 'person', icon: PERSON_ICONS[TRADER.id], name: TRADER.name, sub: TRADER.title, x: at(TRADER.at.anchor).x, z: at(TRADER.at.anchor).z },
+    { id: 'rocco', kind: 'person', icon: PERSON_ICONS.rocco, name: 'Rocco', sub: T.mapShop, x: counter.x, z: counter.z },
+    ...PLACES.map((p): MapMarker => ({ id: `place:${p.id}`, kind: 'place', icon: p.icon, name: p.name, x: p.x, z: p.z })),
+  ];
+  mapSys.addMarkers(mapMarkers);
+  const tmpV = new THREE.Vector3();
+  const mapView = new MapView(game, hud, state, mapSys, world.seabed, world.footprints, () => {
+    const c = player.controller;
+    const me = worldToMap(c.position);
+    const ahead = worldToMap(tmpV.copy(c.position).addScaledVector(c.facing, 1));
+    const b = boats.boat;
+    return {
+      you: { x: me.x, z: me.z, heading: (Math.atan2(ahead.z - me.z, ahead.x - me.x) * 180) / Math.PI },
+      boat: b && !b.aboard ? { x: b.x, z: b.z } : null,
+    };
+  }, () => fishing.phase === 'idle' && !player.locked);
+
   // ---- background music (human-made tracks, see data/music.ts; browsers only allow audio after a user gesture)
   const audio = loadAudioSettings();
   let music: MusicPlayer | null = null;
@@ -144,9 +180,11 @@ async function boot(): Promise<void> {
     const f = player.controller.facing;
     state.player = { x: m.x, z: m.z, h: Math.max(m.h, 0), yaw: Math.atan2(f.x, f.z) };
     state.timeOfDay = env.hour;
+    boats.syncState();
+    mapSys.save();
     saveState(state);
   };
-  for (const e of ['fish:caught', 'coins:changed', 'request:delivered', 'round:started', 'cooler:changed', 'rod:upgraded'] as const) game.events.on(e, persist);
+  for (const e of ['fish:caught', 'coins:changed', 'request:delivered', 'round:started', 'cooler:changed', 'rod:upgraded', 'gear:bought', 'map:hint'] as const) game.events.on(e, persist);
   setInterval(persist, 5000);
   addEventListener('beforeunload', persist);
 
@@ -154,25 +192,30 @@ async function boot(): Promise<void> {
   const pause = new PauseMenu(game, hud, {
     isMuted: () => audio.muted,
     toggleMusic,
-    backToHarbor: () => player.placeAt(spawn.pos),
+    backToHarbor: () => (boats.aboard ? boats.leaveAtHarbor() : player.placeAt(spawn.pos)),
     restart: () => {
       wipeSave();
       location.reload();
     },
-    canOpen: () => fishing.phase === 'idle',
+    canOpen: () => fishing.phase === 'idle' && !mapView.isOpen,
   });
   player.onRescue = () => hud.toast(T.rescued, 'info');
 
   game.add({
     update(dt, time) {
       hud.update();
+      mapView.update();
       pause.update();
-      touch.update({ prompt: hud.current, fishing: fishing.phase, menuOpen: hud.menu.isOpen });
+      touch.update({ prompt: hud.current, fishing: fishing.phase, menuOpen: hud.menu.isOpen || mapView.isOpen });
       player.lock('menu', hud.menu.isOpen);
+      player.lock('map', mapView.isOpen);
       player.update(dt);
       const prompting = interaction.update();
       fishing.update(dt, time, !prompting);
       neighbors.update(dt);
+      boats.update(dt);
+      const me = worldToMap(player.controller.position);
+      mapSys.update(dt, me.x, me.z, boats.aboard);
       markers.update(time, dt);
       // the clock stands still while the game menu is open
       env.update(pause.isOpen ? 0 : dt, time, player.controller.position, player.rig.camera, player.controller.up);
@@ -188,7 +231,7 @@ async function boot(): Promise<void> {
     const { createDebugPanel } = await import('./debug/DebugPanel');
     createDebugPanel(game, env, state, world);
   }
-  (window as unknown as Record<string, unknown>).angler = { game, state, player, world, fishing, neighbors, env };
+  (window as unknown as Record<string, unknown>).angler = { game, state, player, world, fishing, neighbors, env, boats, mapSys, mapView, shop };
 
   game.start();
   await MobileShell.startGate();
@@ -197,12 +240,15 @@ async function boot(): Promise<void> {
     player.lock('intro', true);
     for (let i = 0; i < T.intro.length; i++) {
       const last = i === T.intro.length - 1;
-      const text = last ? `${T.intro[i]}<br><small>${fmt(T.musicCredit, { credits: musicCredits() })}</small>` : T.intro[i];
+      const line = fmt(T.intro[i], { mapKey: MAP_KEY[game.input.device] });
+      const text = last ? `${line}<br><small>${fmt(T.musicCredit, { credits: musicCredits() })}</small>` : line;
       await hud.menu.open({ title: T.title, text, options: [{ label: last ? 'Los geht’s!' : 'Weiter' }] });
     }
     player.lock('intro', false);
   }
 }
+
+const MAP_KEY: Record<Device, string> = { keyboard: '<kbd>K</kbd>', gamepad: '<kbd>Select</kbd>', touch: 'dem 🗺-Knopf' };
 
 const view = new URLSearchParams(location.search).get('view');
 if (view) {

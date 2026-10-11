@@ -6,7 +6,7 @@ export type Device = 'keyboard' | 'gamepad' | 'touch';
 export const IS_TOUCH_DEVICE = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches;
 export type Action =
   | 'jump' | 'interact' | 'fish' | 'cancel' | 'sprint'
-  | 'up' | 'down' | 'left' | 'right' | 'confirm' | 'back' | 'menu';
+  | 'up' | 'down' | 'left' | 'right' | 'confirm' | 'back' | 'menu' | 'map';
 
 interface Binding {
   keys: string[];
@@ -28,6 +28,7 @@ const BINDINGS: Record<Action, Binding> = {
   confirm: { keys: ['Enter', 'KeyE', 'Space'], pad: [0] },
   back: { keys: ['Escape', 'KeyQ', 'Backspace'], pad: [1] },
   menu: { keys: ['Escape'], pad: [9] },
+  map: { keys: ['KeyK', 'Tab'], pad: [8] },
 };
 
 /** Keys that mean "someone is playing with a keyboard" (phone volume/media keys also send keydown). */

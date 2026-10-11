@@ -56,11 +56,12 @@ export const BAITS: BaitDef[] = [
   { id: 'glitzer', name: 'Glitzerlöffel', price: 20, attracts: { tarpun: 2.5, snook: 1.3 }, biteSpeed: 0.9 },
 ];
 
+/** Boat purchase (handling and piers: data/boat.ts). */
 export const BOAT = {
   name: 'Ruderboot',
   price: 800,
-  speed: 5,
-  motor: { name: 'Außenbordmotor', price: 400, speed: 10 },
+  description: 'Dein eigenes Boot! Anlegen und ablegen kannst du an den Stegen (⚓ auf der Karte).',
+  motor: { name: 'Außenbordmotor', price: 400, description: 'Doppelt so schnell übers Wasser — ab zur offenen See!' },
 };
 
 export function rodTier(tier: number): RodTier {

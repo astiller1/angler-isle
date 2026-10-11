@@ -100,3 +100,10 @@ body.compact .nametag b { font-size: 11.5px; padding: 1px 7px; }
 body.compact .nametag .wish { width: 50px; height: 34px; border-width: 2px; border-radius: 11px; margin-bottom: 3px; }
 body.compact .nametag .wish img { width: 40px; height: 24px; }
 body.compact .nametag .wish.done { font-size: 18px; }
+body.compact .map-panel { padding: 4px 8px; gap: 3px; border-width: 3px; }
+body.compact .map-head { font-size: 14px; }
+body.compact .map-close { width: 30px; height: 30px; font-size: 15px; }
+body.compact .map-box { width: min(80vh, 86vw); }
+body.compact .map-foot { font-size: 10px; }
+body.compact .mk .ic { font-size: 14px; }
+body.compact .mk .lb { font-size: 9px; }

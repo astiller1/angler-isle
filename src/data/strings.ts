@@ -17,11 +17,14 @@ export const T = {
   hook: 'Anschlagen!',
   reel: 'Einholen (halten)',
   cancelFishing: 'Abbrechen',
+  boardBoat: 'Ins Boot steigen',
+  dockBoat: 'Anlegen ({dock})',
 
   intro: [
     'Willkommen auf der Angler-Insel, Mika!',
     'Deine Bambusrute hast du schon dabei. Finde die Angelplätze rund um die Insel — achte auf blubberndes Wasser.',
     'Die Nachbarn wünschen sich bestimmte Fische. Fische verkaufen kannst du bei Pelle am Hafen — und bessere Angeln gibt es hier bei Rocco.',
+    'Mit {mapKey} öffnest du deine Karte. Sie füllt sich, während du die Insel erkundest.',
   ],
   noRod: 'Du brauchst erst eine Angel. Im Köderladen am Hafen hängt eine am Regal.',
   notWater: 'Da ist kein Wasser…',
@@ -69,13 +72,13 @@ export const T = {
   restartNo: 'Nein, zurück',
   rescued: 'Hoppla! Mika ist wieder an Land.',
   backToHarbor: 'Zurück am Hafen.',
-  controlsTouch: 'Links Daumen ziehen = laufen · rechts wischen = Kamera · großer Knopf = angeln/reden/kaufen · ⤒ springen · ✕ abbrechen',
+  controlsTouch: 'Links Daumen ziehen = laufen · rechts wischen = Kamera · großer Knopf = angeln/reden/kaufen · ⤒ springen · ✕ abbrechen · 🗺 Karte',
 
   // shop
   shop: 'Laden (Rocco)',
-  shopTitle: 'Rocco — Köder & Angeln',
+  shopTitle: 'Rocco — Angeln & Boote',
   shopGreet: 'Moin, Mika! Bessere Angel, größere Fische. Du angelst gerade mit der <b>{rod}</b>.',
-  shopMax: 'Du hast schon die beste Angel der Insel! Mehr hab ich nicht im Laden.',
+  shopMax: 'Du hast schon die beste Angel der Insel!',
   shopBuy: '{rod} — {price} Münzen',
   shopOwned: '✔ {rod}',
   shopOwnedHint: 'Gehört dir',
@@ -84,12 +87,37 @@ export const T = {
   shopStats: 'Wurfweite {cast} m · Schnur hält {tension} % · Einholen {reel} %',
   shopThanks: 'Viel Spaß mit der neuen {rod}! Probier sie gleich am Wasser aus.',
   rodUpgraded: 'Neue Angel: {rod}!',
+  shopBoatSection: 'Boot',
+  shopGear: '{name} — {price} Münzen',
+  shopGearLocked: 'Erst das {name} kaufen',
+  boatBought: 'Dein Ruderboot liegt jetzt am Ende vom langen Pier! Steig dort ein. Anlegen kannst du an jedem ⚓ Anleger.',
+  motorBought: 'Der Außenbordmotor ist montiert. Brumm brumm!',
+  gearBought: 'Neu: {name}!',
   tooStrong: 'Der ist zu stark für deine Angel! Im Laden gibt es bessere.',
+
+  // boat
+  boatBrought: 'Rocco hat dein Boot hierher gebracht.',
+  boatDocked: 'Angelegt: {dock}',
+  boatTooFar: 'Die Strömung treibt dich zurück zur Insel.',
+  boatAground: 'Zu flach für das Boot!',
+  noFishFromBoat: 'Erst anhalten, dann auswerfen.',
+
+  // map
+  map: 'Karte',
+  mapTitle: 'Karte der Angler-Insel',
+  mapLegend: '🎣 Angelplatz · ⚓ Anlegestelle · ★ Ort',
+  mapClose: 'Schließen',
+  mapNew: 'Neu auf der Karte: {name}',
+  mapHint: '{name} hat dir die {spot} auf der Karte eingezeichnet!',
+  mapYou: 'Du',
+  mapBoat: 'Dein Boot',
+  mapExplored: '{pct} % erkundet',
+  mapShop: 'Angeln & Boote',
 
   weight: '{kg} kg',
   rarity: { common: 'Häufig', uncommon: 'Ungewöhnlich', rare: 'Selten' },
-  controlsKeyboard: 'WASD laufen · Pfeiltasten/Rechtsklick Kamera · Leertaste springen · Shift rennen · E interagieren · F/Linksklick angeln · Q abbrechen · M Musik',
-  controlsGamepad: 'Linker Stick laufen · Rechter Stick Kamera · A springen · X interagieren · RT angeln · B abbrechen · LT rennen · Start Menü',
+  controlsKeyboard: 'WASD laufen · Pfeiltasten/Rechtsklick Kamera · Leertaste springen · Shift rennen · E interagieren · F/Linksklick angeln · Q abbrechen · K Karte · M Musik',
+  controlsGamepad: 'Linker Stick laufen · Rechter Stick Kamera · A springen · X interagieren · RT angeln · B abbrechen · LT rennen · Select Karte · Start Menü',
 } as const;
 
 /** Simple {placeholder} replacement. */

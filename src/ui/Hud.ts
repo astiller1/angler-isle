@@ -39,7 +39,7 @@ export class Hud {
         <div class="badge round"><span class="round-num"></span></div>
         <div class="requests panel small"></div>
       </div>
-      <div class="hud-top-right"><button class="badge menu-btn" title="Menü (Esc)" aria-label="Menü">☰</button><button class="badge sound" title="Musik an/aus (M)" aria-label="Musik an/aus">🔊</button><div class="badge clock"><span class="clock-icon">☀</span><span class="clock-num">08:00</span></div><div class="badge coins"><span class="coin-icon">●</span><span class="coin-num">0</span></div></div>
+      <div class="hud-top-right"><button class="badge map-btn" title="Karte (K)" aria-label="Karte">🗺</button><button class="badge menu-btn" title="Menü (Esc)" aria-label="Menü">☰</button><button class="badge sound" title="Musik an/aus (M)" aria-label="Musik an/aus">🔊</button><div class="badge clock"><span class="clock-icon">☀</span><span class="clock-num">08:00</span></div><div class="badge coins"><span class="coin-icon">●</span><span class="coin-num">0</span></div></div>
       <div class="spot-name hidden"></div>
       <div class="toasts"></div>
       <div class="cooler-bar"></div>
@@ -70,6 +70,9 @@ export class Hud {
     const soundBtn = q('.sound');
     soundBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
     soundBtn.addEventListener('click', () => this.onSoundToggle?.());
+    const mapBtn = q('.map-btn');
+    mapBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
+    mapBtn.addEventListener('click', () => this.onMapButton?.());
     const menuBtn = q('.menu-btn');
     menuBtn.addEventListener('pointerdown', (e) => e.stopPropagation());
     menuBtn.addEventListener('click', () => this.onMenuButton?.());
@@ -193,6 +196,9 @@ export class Hud {
   /** Game clock (hour 0..24). */
   /** Called when the ☰ menu button is pressed. */
   onMenuButton: (() => void) | null = null;
+
+  /** Called when the map button is pressed. */
+  onMapButton: (() => void) | null = null;
 
   /** Called when the speaker button is pressed. */
   onSoundToggle: (() => void) | null = null;

@@ -52,7 +52,15 @@ export class Neighbors {
     private state: GameState,
     interaction: InteractionSystem,
   ) {
-    this.ctx = { neighbors: NEIGHBORS, fish: FISH, spots: SPOTS, hasBoat: false, rng: Math.random };
+    this.ctx = {
+      neighbors: NEIGHBORS,
+      fish: FISH,
+      spots: SPOTS,
+      get hasBoat() {
+        return state.boat.owned;
+      },
+      rng: Math.random,
+    };
     this.tagLayer = document.createElement('div');
     hud.root.appendChild(this.tagLayer);
 
@@ -164,6 +172,12 @@ export class Neighbors {
       this.game.events.emit('cooler:changed');
       this.player.cooler.refresh();
       await this.hud.menu.open({ title: n.name, subtitle: n.title, text: pick(n.lines.thanks), options: [{ label: T.leave }] });
+      // sometimes a neighbor also marks a good spot on your map
+      for (const r of n.extraRewards) {
+        if (r.type === 'hint' && !this.state.map.known.includes(`spot:${r.spotId}`) && Math.random() < n.extraRewardChance) {
+          this.game.events.emit('map:hint', { spotId: r.spotId, from: n.name });
+        }
+      }
       if (res.roundAdvanced) {
         this.hud.toast(T.roundDone, 'good');
         setTimeout(() => this.hud.toast(fmt(T.roundStart, { round: this.state.round }), 'good'), 900);

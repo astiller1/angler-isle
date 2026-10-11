@@ -84,6 +84,10 @@ export class Player {
   private watchStuck(dt: number): void {
     const c = this.controller;
     const inp = this.game.input;
+    if (c.mode.id === 'inBoat') {
+      this.stuckTime = 0;
+      return;
+    }
     this.safeTimer -= dt;
     if (this.safeTimer <= 0 && c.grounded && !c.inWater) {
       this.safeTimer = 0.5;
@@ -127,9 +131,13 @@ export class Player {
 
     this.watchStuck(dt);
     this.cat.root.position.copy(c.position);
+    const inBoat = c.mode.id === 'inBoat';
+    // in the boat the cat sits on the thwart; for casting it stands up on the floor boards
+    if (inBoat && this.poseOverride) this.cat.root.position.addScaledVector(c.up, -0.3);
     this.cat.root.quaternion.copy(c.quaternion);
     this.cat.speed = c.speed;
     if (this.poseOverride) this.cat.pose = this.poseOverride;
+    else if (inBoat) this.cat.pose = 'sit';
     else if (c.inWater && heightOf(c.position) < -0.3) this.cat.pose = 'swim';
     else if (!c.grounded && !c.inWater) this.cat.pose = 'jump';
     else if (c.speed > 5.2) this.cat.pose = 'run';

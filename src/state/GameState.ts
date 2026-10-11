@@ -32,6 +32,24 @@ export interface GameState {
   player: { x: number; z: number; h: number; yaw: number } | null;
   /** Game clock in hours (0..24). */
   timeOfDay: number;
+  boat: BoatState;
+  map: MapState;
+}
+
+export interface BoatState {
+  owned: boolean;
+  motor: boolean;
+  /** Pier where the boat is moored (data/boat.ts DOCKS). */
+  dock: string;
+  /** Set while the cat is out in the boat (map position + heading in degrees). */
+  at: { x: number; z: number; yaw: number } | null;
+}
+
+export interface MapState {
+  /** Explored cells of the map grid as a base64 bit field (see map/Exploration.ts). */
+  fog: string;
+  /** Ids of map markers already discovered (spots, piers, places…). */
+  known: string[];
 }
 
 export function newGameState(): GameState {
@@ -48,5 +66,7 @@ export function newGameState(): GameState {
     log: {},
     player: null,
     timeOfDay: 8,
+    boat: { owned: false, motor: false, dock: 'hafen', at: null },
+    map: { fog: '', known: [] },
   };
 }

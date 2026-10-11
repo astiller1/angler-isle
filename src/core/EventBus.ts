@@ -12,6 +12,9 @@ export interface GameEvents {
   'coins:changed': { coins: number; delta: number };
   'request:delivered': { neighborId: string; fish: CaughtFish; coins: number };
   'round:started': { round: number };
+  'gear:bought': { id: 'boat' | 'motor' };
+  /** A neighbor marked a spot on the map. */
+  'map:hint': { spotId: string; from: string };
   'toast': { text: string; kind?: 'info' | 'good' | 'warn' };
 }
 

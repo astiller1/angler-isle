@@ -1,4 +1,5 @@
 import type { Placement, ScatterRule } from './types';
+import { DOCKS } from './boat';
 
 /**
  * The island layout in map coordinates (meters; x = east, z = south). Static models are bent onto
@@ -33,9 +34,16 @@ export const PLACEMENTS: Placement[] = [
   { model: 'buildings/beach_shack', x: 22, z: 72, rot: 200, h: 'ground' },
   { model: 'buildings/hammock', x: -70, z: 29, rot: 30, h: 'ground' },
   { model: 'buildings/boardwalk', x: -93, z: 12, rot: 270, h: 0.9 },
+  // Boat jetties (data/boat.ts)
+  ...DOCKS.filter((d) => d.jetty).map((d) => ({ model: 'buildings/jetty', x: d.x, z: d.z, rot: d.rot, h: d.h })),
+  // Kokos-Inselchen
+  { model: 'props/bench', x: 125, z: -116, rot: 250, h: 'ground' },
+  { model: 'props/crates', x: 121, z: -121, rot: 40, h: 'ground' },
 ];
 
 const ISLAND = 'island' as const;
+const ISLET = { x: 128, z: -122, r: 20 };
+const SAND_CAY = { x: 150, z: 80, r: 6 };
 
 export const SCATTER: ScatterRule[] = [
   { models: ['vegetation/palm_a', 'vegetation/palm_b', 'vegetation/palm_c'], count: 150, area: ISLAND, minH: 0.5, maxH: 6, maxSlope: 0.5, scale: [0.85, 1.2], spacing: 5, pathMargin: 2, collide: true, seed: 1 },
@@ -51,5 +59,12 @@ export const SCATTER: ScatterRule[] = [
   { models: ['rocks/rock_a'], count: 60, area: ISLAND, minH: -1.2, maxH: 1.2, scale: [0.6, 1.3], spacing: 6, pathMargin: 2, sink: 0.25, collide: true, seed: 11 },
   { models: ['rocks/rock_a', 'rocks/rock_b', 'rocks/rock_c'], count: 22, area: { x: 5, z: -86, r: 40 }, minH: 2, maxH: 10, scale: [0.5, 1.0], spacing: 4, pathMargin: 2, sink: 0.3, collide: true, seed: 14 },
   { models: ['rocks/rock_b'], count: 14, area: { x: 6, z: -94, r: 26 }, minH: -0.6, maxH: 4, scale: [0.9, 1.3], spacing: 4, pathMargin: 2, sink: 0.2, collide: true, seed: 12 },
+  // offshore: Kokos-Inselchen, the Sandbank cay and reef rocks at the Riffkante
+  { models: ['vegetation/palm_a', 'vegetation/palm_b', 'vegetation/palm_c'], count: 14, area: ISLET, minH: 0.5, maxH: 8, scale: [0.9, 1.25], spacing: 4.5, collide: true, seed: 21 },
+  { models: ['vegetation/bush_a', 'vegetation/bush_b'], count: 12, area: ISLET, minH: 1.0, maxH: 8, scale: [0.7, 1.1], spacing: 3, collide: true, seed: 22 },
+  { models: ['vegetation/grass', 'vegetation/flowers'], count: 40, area: ISLET, minH: 1.0, maxH: 8, scale: [0.8, 1.4], spacing: 1.5, collide: false, seed: 23 },
+  { models: ['rocks/rock_a'], count: 8, area: ISLET, minH: -1.0, maxH: 0.8, scale: [0.6, 1.2], spacing: 5, sink: 0.25, collide: true, seed: 24 },
+  { models: ['vegetation/palm_b'], count: 2, area: SAND_CAY, minH: 0.05, maxH: 2, scale: [0.8, 1.0], spacing: 3, collide: true, seed: 25 },
+  { models: ['rocks/rock_b', 'rocks/rock_a'], count: 10, area: { x: 72, z: -150, r: 24 }, minH: -2.6, maxH: -1.8, scale: [0.9, 1.3], spacing: 7, sink: 0.2, collide: true, seed: 26 },
   { models: ['rocks/pebble'], count: 90, area: ISLAND, minH: 0.2, maxH: 3, scale: [0.8, 1.6], spacing: 2.5, pathMargin: 0.5, collide: false, seed: 13 },
 ];

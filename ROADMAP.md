@@ -41,16 +41,25 @@
 - The bamboo rod is owned from the start (no pickup); the shack rack is a sales display showing only the rods
   you can still buy — it opens Rocco's shop, bought rods leave the rack and replace the one in the paw
 
+## Version 8 — Boot & Karte ✔
+- Rowboat (800) and outboard motor (400) at Rocco's; board/leave only at the 4 piers (Hafen-Anleger at the end of
+  the long pier, Strand-, Mangroven- and Inselchen-Anleger) — `InBoat` movement mode, forgiving camera-relative
+  steering, grounding on shallows/posts, current pushes back beyond 300 m; fishing from the boat when stopped
+- Offshore: Kokos-Inselchen (islet with jetty and palms), reef plateau and a sandbank with a tiny dry cay
+- Boat-only spots Riffkante, Offene See, Sandbank with 5 new species (Papageifisch, Barrakuda, Goldmakrele,
+  Permit, Gelbflossen-Thun — barracuda/permit need rod tier 2, tuna tier 3)
+- Fold-out map (K / Select / 🗺): painted from the terrain, fog of war revealed while exploring, markers for spots,
+  piers, neighbors (with open-wish badge), shops and places; "Neu auf der Karte" toasts; Walter may mark the
+  Riffkante as a delivery bonus (hint reward)
+
 ## Milestone 2 — Shop & upgrades (rest)
 - Coolers 4 → 6 → 8 (cooler view already reads slot count from data)
 - Bait items that bias spot species tables
-- Neighbor extra rewards: hints, bait, cosmetics (reward types already typed)
+- Neighbor extra rewards: bait, cosmetics (hint rewards are live since v8)
 
-## Milestone 3 — Boat & offshore
-- Rowboat purchase, fixed piers (board/leave only at piers) — `InBoat` movement mode
-- Motor upgrade (speed/range)
-- Offshore islet, boat-only spots: Riffkante, Offene See, Sandbank (spots with `access: 'boat'`)
+## Milestone 3 — Boat & offshore (rest)
 - Remaining shore spots: Flussmündung, Lagune
+- Boat extras: night lantern, wake foam, a neighbor on the islet
 
 ## Milestone 4 — Exploration & world extras
 - Lighthouse with stairs + lighthouse-keeper neighbor

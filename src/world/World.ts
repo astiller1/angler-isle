@@ -21,7 +21,7 @@ export interface AnchorInfo {
   rot: number;
 }
 
-interface Footprint {
+export interface Footprint {
   x: number;
   z: number;
   rot: number;
@@ -52,7 +52,8 @@ export class World {
   /** World positions of night lights (GLOW_* empties in the models). */
   readonly glows: THREE.Vector3[] = [];
   seabed!: Seabed;
-  private footprints: Footprint[] = [];
+  /** Placed structures (map coordinates + rotated local bounds), e.g. for drawing the map. */
+  readonly footprints: Footprint[] = [];
 
   constructor(private assets: Assets) {
     this.root.name = 'world';

@@ -36,9 +36,8 @@ export class SpotMarkers {
     let seed = 7;
     const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
     for (const spot of SPOTS) {
-      if (spot.access !== 'shore') continue;
       let made = 0;
-      for (let k = 0; k < 120 && made < 16; k++) {
+      for (let k = 0; k < 120 && made < (spot.access === 'boat' ? 24 : 16); k++) {
         const a = rand() * Math.PI * 2;
         const r = Math.sqrt(rand()) * spot.radius * 0.85;
         const x = spot.x + Math.cos(a) * r;
@@ -47,7 +46,7 @@ export class SpotMarkers {
         this.bubbles.push({ x, z, t: rand() * 3, period: 1.4 + rand() * 1.8 });
         made++;
       }
-      for (let k = 0; k < 3; k++) {
+      for (let k = 0; k < (spot.access === 'boat' ? 5 : 3); k++) {
         this.shadows.push({ cx: spot.x, cz: spot.z, r: spot.radius * (0.3 + rand() * 0.45), speed: (0.15 + rand() * 0.2) * (rand() < 0.5 ? -1 : 1), phase: rand() * 6, size: 0.6 + rand() * 0.5 });
       }
     }
