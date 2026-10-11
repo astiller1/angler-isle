@@ -40,7 +40,7 @@ export function newGameState(): GameState {
     coins: 0,
     totalEarned: 0,
     round: 0,
-    hasRod: false,
+    hasRod: true,
     rodTier: 1,
     coolerTier: 1,
     cooler: [],

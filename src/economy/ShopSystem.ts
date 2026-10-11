@@ -38,7 +38,8 @@ export class ShopSystem {
     return fmt(T.shopStats, { cast: rod.castMax, tension: Math.round(rod.tensionLimit * 100), reel: Math.round(rod.reelSpeed * 100) });
   }
 
-  private async open(): Promise<void> {
+  /** Open Rocco's shop menu (also from the rod display rack). */
+  async open(): Promise<void> {
     this.player.lock('dialog', true);
     this.npc.talking = true;
     try {

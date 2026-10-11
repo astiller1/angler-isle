@@ -10,7 +10,7 @@ export const T = {
   delivered: 'erledigt',
 
   // prompts (verb shown after the button glyph)
-  takeRod: 'Angel nehmen',
+  rackLook: 'Neue Angeln ansehen',
   talk: 'Reden',
   sell: 'Fische verkaufen',
   cast: 'Auswerfen (halten)',
@@ -20,10 +20,9 @@ export const T = {
 
   intro: [
     'Willkommen auf der Angler-Insel, Mika!',
-    'Nimm dir eine Angel vom Regal und finde die Angelplätze rund um die Insel — achte auf blubberndes Wasser.',
-    'Die Nachbarn wünschen sich bestimmte Fische. Fische verkaufen kannst du bei Pelle am Hafen.',
+    'Deine Bambusrute hast du schon dabei. Finde die Angelplätze rund um die Insel — achte auf blubberndes Wasser.',
+    'Die Nachbarn wünschen sich bestimmte Fische. Fische verkaufen kannst du bei Pelle am Hafen — und bessere Angeln gibt es hier bei Rocco.',
   ],
-  gotRod: 'Du hast eine Bambusrute! Geh zum Wasser und halte {fish}, um auszuwerfen.',
   noRod: 'Du brauchst erst eine Angel. Im Köderladen am Hafen hängt eine am Regal.',
   notWater: 'Da ist kein Wasser…',
   noFishHere: 'Hier beißt nichts. Such blubberndes Wasser!',

@@ -1,5 +1,6 @@
 """Bait-and-tackle shack (the start area). 7 x 6 m, floor = origin. Door in front (-Y).
-A rod rack stands on the inside of the right wall (+X); ANCHOR_rack_rod is where the takeable rod hangs."""
+A rod rack (sales display) stands on the inside of the right wall (+X); the game hangs the rods you can buy
+at ANCHOR_rack_2 / ANCHOR_rack_3 (glass fibre / carbon) and removes them once bought."""
 import os, sys; sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_lib"))
 from kit import *
 from structures import B
@@ -37,13 +38,12 @@ def build():
         b.mb.box((0.14, 2.6, 0.1), (rx, 0.3, z), color="wood_dark")
     for y in (-0.9, 1.5):
         b.mb.box((0.12, 0.12, 2.0), (rx, y, 1.0), color="wood_dark")
-    for k, col in enumerate(("hat_green", "red", "roof_blue")):
-        y = 0.9 - k * 0.5
-        b.mb.cyl(0.025, 2.1, (rx - 0.05, y, 1.15), r2=0.01, color="rod", seg=6)
-        b.mb.cyl(0.04, 0.35, (rx - 0.05, y, 0.3), color="rod_grip", seg=6)
-        b.mb.cyl(0.06, 0.05, (rx - 0.12, y, 0.55), rot=(0, math.pi / 2, 0), color=col, seg=8)
     b.col((0.4, 2.8, 2.2), (rx, 0.3, 1.1))
-    empty("ANCHOR_rack_rod", (rx - 0.08, -0.65, 0.2))
+    # sign above the rack, facing into the room (-X)
+    b.mb.box((0.06, 1.5, 0.32), (rx - 0.02, 0.3, 2.25), color="sign")
+    text_mesh(b.mb, "Neue Angeln", (rx - 0.06, 0.3, 2.25), size=0.17, color="wood_dark", rot=(math.pi / 2, 0, -math.pi / 2))
+    empty("ANCHOR_rack_2", (rx - 0.08, 0.75, 0.2))
+    empty("ANCHOR_rack_3", (rx - 0.08, -0.15, 0.2))
     # hanging lamp
     b.mb.cyl(0.18, 0.2, (0, 0.4, H - 0.35), color="flower_yellow", seg=8)
     b.mb.box((0.02, 0.02, 0.5), (0, 0.4, H - 0.1), color="black")

@@ -19,7 +19,7 @@ import { loadState, saveState, wipeSave } from './state/save';
 import { PauseMenu } from './ui/PauseMenu';
 import { validateData } from './data/validate';
 import { T, fmt } from './data/strings';
-import { rodTier } from './data/upgrades';
+import { RODS, rodTier } from './data/upgrades';
 import { ShopSystem } from './economy/ShopSystem';
 import { mapToWorld, orientationAt, toTangent, worldToMap } from './planet/Planet';
 
@@ -51,43 +51,42 @@ async function boot(): Promise<void> {
 
   // ---- spawn: saved position, or inside the tackle shack facing the rod rack
   const spawn = world.anchor('ANCHOR_spawn');
-  const rack = world.anchor('ANCHOR_rack_rod');
+  const counter = world.anchor('ANCHOR_shopkeeper');
   if (state.player) {
     const p = state.player;
     player.controller.teleport(mapToWorld(p.x, p.z, p.h + 0.2), new THREE.Vector3(Math.sin(p.yaw), 0, Math.cos(p.yaw)));
   } else {
-    player.controller.teleport(spawn.pos.clone().addScaledVector(spawn.pos.clone().normalize(), 0.1), rack.pos.clone().sub(spawn.pos));
+    player.controller.teleport(spawn.pos.clone().addScaledVector(spawn.pos.clone().normalize(), 0.1), counter.pos.clone().sub(spawn.pos));
   }
   player.rig.setHeading(toTangent(player.controller.facing.clone(), player.controller.up));
 
-  // ---- the rod on the rack
-  if (state.hasRod) {
-    player.giveRod(game.assets.get(rodTier(state.rodTier).model));
-  } else {
-    const rackRod = game.assets.get('props/rod');
-    rackRod.position.copy(rack.pos);
-    orientationAt(rack.x, rack.z, rack.rot, rackRod.quaternion);
-    rackRod.rotateX(-0.06);
-    game.scene.add(rackRod);
-    interaction.add({
-      id: 'rod-rack',
-      position: rack.pos,
-      radius: 2.6,
-      label: () => (state.hasRod ? null : T.takeRod),
-      interact: () => {
-        state.hasRod = true;
-        rackRod.parent?.remove(rackRod);
-        player.giveRod(rackRod);
-        interaction.remove('rod-rack');
-        hud.toast(fmt(T.gotRod, { fish: game.input.device === 'gamepad' ? 'RT' : game.input.device === 'touch' ? 'den 🎣-Knopf' : 'F' }), 'good');
-        game.events.emit('rod:taken');
-        saveState(state);
-      },
-    });
-  }
+  // ---- everyone starts with the bamboo rod; better rods replace it (bought at Rocco's)
+  state.hasRod = true;
+  player.giveRod(game.assets.get(rodTier(state.rodTier).model));
 
   const neighbors = new Neighbors(game, world, player, hud, state, interaction);
-  new ShopSystem(game, neighbors, player, hud, state, interaction);
+  const shop = new ShopSystem(game, neighbors, player, hud, state, interaction);
+
+  // ---- rod display rack in the shack: shows the rods you can still buy; tapping it opens the shop
+  const rackRods = RODS.filter((r) => r.tier > 1).map((rod) => {
+    const a = world.anchor(`ANCHOR_rack_${rod.tier}`);
+    const obj = game.assets.get(rod.model);
+    obj.position.copy(a.pos);
+    orientationAt(a.x, a.z, a.rot, obj.quaternion);
+    obj.rotateX(-0.06);
+    game.scene.add(obj);
+    return { rod, obj, anchor: a };
+  });
+  const updateRack = () => rackRods.forEach((r) => (r.obj.visible = state.rodTier < r.rod.tier));
+  updateRack();
+  game.events.on('rod:upgraded', updateRack);
+  interaction.add({
+    id: 'rod-rack',
+    position: rackRods[0].anchor.pos.clone().lerp(rackRods[rackRods.length - 1].anchor.pos, 0.5),
+    radius: 2.4,
+    label: () => (rackRods.some((r) => r.obj.visible) ? T.rackLook : null),
+    interact: () => shop.open(),
+  });
   hud.renderAll();
   const fishing = new FishingSystem(game, player, hud, state, world.seabed);
 
