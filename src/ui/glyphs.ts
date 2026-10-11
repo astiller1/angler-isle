@@ -1,10 +1,10 @@
 import type { Action, Device } from '../core/Input';
 
 const KEY: Partial<Record<Action, string>> = {
-  interact: 'E', fish: 'F', cancel: 'Q', jump: 'Leertaste', confirm: 'E', back: 'Esc', sprint: 'Shift',
+  interact: 'E', fish: 'F', cancel: 'Q', jump: 'Leertaste', confirm: 'E', back: 'Esc', sprint: 'Shift', menu: 'Esc',
 };
 const PAD: Partial<Record<Action, string>> = {
-  interact: 'X', fish: 'RT', cancel: 'B', jump: 'A', confirm: 'A', back: 'B', sprint: 'LT',
+  interact: 'X', fish: 'RT', cancel: 'B', jump: 'A', confirm: 'A', back: 'B', sprint: 'LT', menu: 'Start',
 };
 
 const TOUCH: Partial<Record<Action, string>> = {

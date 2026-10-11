@@ -15,7 +15,8 @@ import { TouchControls } from './ui/TouchControls';
 import { MusicPlayer, loadAudioSettings, saveAudioSettings } from './audio/MusicPlayer';
 import { musicCredits } from './data/music';
 import { MobileShell } from './ui/MobileShell';
-import { loadState, saveState } from './state/save';
+import { loadState, saveState, wipeSave } from './state/save';
+import { PauseMenu } from './ui/PauseMenu';
 import { validateData } from './data/validate';
 import { T, fmt } from './data/strings';
 import { rodTier } from './data/upgrades';
@@ -150,9 +151,23 @@ async function boot(): Promise<void> {
   setInterval(persist, 5000);
   addEventListener('beforeunload', persist);
 
+  // ---- game menu (☰ / Esc / Start) and rescue when stuck
+  const pause = new PauseMenu(game, hud, {
+    isMuted: () => audio.muted,
+    toggleMusic,
+    backToHarbor: () => player.placeAt(spawn.pos),
+    restart: () => {
+      wipeSave();
+      location.reload();
+    },
+    canOpen: () => fishing.phase === 'idle',
+  });
+  player.onRescue = () => hud.toast(T.rescued, 'info');
+
   game.add({
     update(dt, time) {
       hud.update();
+      pause.update();
       touch.update({ prompt: hud.current, fishing: fishing.phase, menuOpen: hud.menu.isOpen });
       player.lock('menu', hud.menu.isOpen);
       player.update(dt);
@@ -160,7 +175,8 @@ async function boot(): Promise<void> {
       fishing.update(dt, time, !prompting);
       neighbors.update(dt);
       markers.update(time, dt);
-      env.update(dt, time, player.controller.position, player.rig.camera, player.controller.up);
+      // the clock stands still while the game menu is open
+      env.update(pause.isOpen ? 0 : dt, time, player.controller.position, player.rig.camera, player.controller.up);
       if (music) {
         music.night = musicNight();
         music.update();

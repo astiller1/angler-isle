@@ -60,6 +60,7 @@ export class Menu {
     this.input.consume('confirm');
     this.input.consume('jump');
     this.input.consume('fish');
+    this.input.consume('menu');
     const r = this.resolve;
     this.resolve = null;
     r?.(i);

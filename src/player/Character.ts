@@ -181,6 +181,10 @@ export class Character {
         break;
     }
 
+    // gentler tail sway so the tail never swings into the cooler on the back
+    const tail = target.get('tail');
+    if (tail) tail[1] *= 0.6;
+
     const k = 1 - Math.exp(-rate * dt);
     for (const [name, part] of this.parts) {
       const tgt = target.get(name) ?? [0, 0, 0];

@@ -18,6 +18,9 @@ def stilt_house(seed, wall, roof, trim="trim", two_story=False, name="house"):
     b.stilts(x0, porch_x1, y0 - PORCH, y0 - PORCH, FLOOR, -1.5, spacing=2.5, r=0.12)
     b.deck(x0 - 0.1, x1 + 0.1, y0, y1 + 0.1, FLOOR, along="y", color="plank")
     b.deck(x0 - 0.1, porch_x1, y0 - PORCH, y0, FLOOR, along="x", color="plank")
+    # nobody gets stuck under the house
+    b.skirt([(x0 - 0.1, y0 - PORCH), (porch_x1, y0 - PORCH), (porch_x1, y0), (x1 + 0.1, y0), (x1 + 0.1, y1 + 0.1),
+             (x0 - 0.1, y1 + 0.1), (x0 - 0.1, y0 - PORCH)], z_top=FLOOR - 0.12, z_bottom=-1.5)
 
     # front stairs (ground -> porch)
     run = b.stairs(-0.0, y0 - PORCH - 2.4, 0.0, FLOOR, (0, 1), width=1.3)

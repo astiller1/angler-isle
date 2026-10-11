@@ -54,6 +54,24 @@ export const T = {
   coinsGained: '+{coins} Münzen',
   musicCredit: 'Musik: {credits}',
 
+  // game menu
+  menuTitle: 'Menü',
+  menuResume: '▶ Weiterspielen',
+  menuMusicOn: '🔊 Musik: an',
+  menuMusicOff: '🔇 Musik: aus',
+  menuHarbor: '🏠 Zurück zum Hafen',
+  menuHarborHint: 'Falls du irgendwo feststeckst',
+  menuControls: '🎮 Steuerung',
+  menuRestart: '🔄 Neues Spiel',
+  menuRestartHint: 'Fortschritt löschen und von vorn beginnen',
+  restartTitle: 'Wirklich neu anfangen?',
+  restartText: 'Münzen, Angeln, Fische und Runden gehen verloren. Das lässt sich nicht rückgängig machen.',
+  restartYes: 'Ja, neues Spiel starten',
+  restartNo: 'Nein, zurück',
+  rescued: 'Hoppla! Mika ist wieder an Land.',
+  backToHarbor: 'Zurück am Hafen.',
+  controlsTouch: 'Links Daumen ziehen = laufen · rechts wischen = Kamera · großer Knopf = angeln/reden/kaufen · ⤒ springen · ✕ abbrechen',
+
   // shop
   shop: 'Laden (Rocco)',
   shopTitle: 'Rocco — Köder & Angeln',
@@ -72,7 +90,7 @@ export const T = {
   weight: '{kg} kg',
   rarity: { common: 'Häufig', uncommon: 'Ungewöhnlich', rare: 'Selten' },
   controlsKeyboard: 'WASD laufen · Pfeiltasten/Rechtsklick Kamera · Leertaste springen · Shift rennen · E interagieren · F/Linksklick angeln · Q abbrechen · M Musik',
-  controlsGamepad: 'Linker Stick laufen · Rechter Stick Kamera · A springen · X interagieren · RT angeln · B abbrechen · LT rennen',
+  controlsGamepad: 'Linker Stick laufen · Rechter Stick Kamera · A springen · X interagieren · RT angeln · B abbrechen · LT rennen · Start Menü',
 } as const;
 
 /** Simple {placeholder} replacement. */

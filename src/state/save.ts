@@ -18,6 +18,7 @@ export function loadState(): { state: GameState; isNew: boolean } {
 }
 
 export function saveState(state: GameState): void {
+  if (wiped) return;
   try {
     localStorage.setItem(KEY, JSON.stringify(state));
   } catch {
@@ -29,4 +30,20 @@ function migrate(s: Partial<GameState> & { version?: number }): GameState | null
   if (!s || typeof s !== 'object') return null;
   if (s.version === SAVE_VERSION) return { ...newGameState(), ...s } as GameState;
   return null; // unknown version → new game (add migrations here when SAVE_VERSION changes)
+}
+
+let wiped = false;
+
+/** Delete the save and stop further saving (until reload) — used by "Neues Spiel". */
+export function wipeSave(): void {
+  wiped = true;
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function isWiped(): boolean {
+  return wiped;
 }

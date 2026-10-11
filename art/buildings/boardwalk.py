@@ -12,6 +12,7 @@ def build():
         for x in (-0.85, 0.85):
             b.post(x, y, -0.05, -3, r=0.1, color="mangrove_root")
     b.stilts(-2, 2, -26, -22, 0, -3, spacing=2, r=0.1)
+    b.skirt([(-0.9, 0), (-0.9, -22), (-2, -22), (-2, -26), (2, -26), (2, -22), (0.9, -22), (0.9, 0), (-0.9, 0)], z_bottom=-3)
     b.railing((0.9, -1), (0.9, -22), rope=True, spacing=2.2)
     b.railing((-0.9, -1), (-0.9, -22), rope=True, spacing=2.2)
     b.railing((-2, -22), (-0.9, -22), rope=True)

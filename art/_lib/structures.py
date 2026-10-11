@@ -50,6 +50,14 @@ class B:
         if collide:
             self.col((x1 - x0, y1 - y0, 0.4), ((x0 + x1) / 2, (y0 + y1) / 2, z - 0.2))
 
+    def skirt(self, pts, z_top=-0.12, z_bottom=-8.0, t=0.16):
+        """Invisible player-only walls along a polyline under a deck, so nobody can walk/swim under it."""
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            length = math.hypot(x1 - x0, y1 - y0)
+            ang = math.atan2(y1 - y0, x1 - x0)
+            self.col((length + t, t, z_top - z_bottom), ((x0 + x1) / 2, (y0 + y1) / 2, (z_top + z_bottom) / 2),
+                     rot=(0, 0, ang), player_only=True)
+
     def post(self, x, y, z_top, z_bottom, r=0.12, color="wood_dark", collide=False):
         self.mb.cyl(r, z_top - z_bottom, (x, y, (z_top + z_bottom) / 2), color=color, seg=6)
         if collide:

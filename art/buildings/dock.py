@@ -9,6 +9,7 @@ def build():
     b = B(7)
     b.deck(-6, 6, -18, 18, 0, along="x")
     b.stilts(-6, 6, -18, 18, 0, -7, spacing=4)
+    b.skirt([(-6, -18), (6, -18), (6, 18), (-6, 18), (-6, -18)], z_bottom=-7)
     b.railing((6, -18), (6, -1.6))
     b.railing((6, 1.6), (6, 18))
     b.railing((1, -18), (6, -18))

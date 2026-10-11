@@ -127,5 +127,6 @@ kbd.pad-RT, kbd.pad-LT { background: #555; border-radius: 8px; }
 .nametag .wish.done::after { border-top-color: var(--good); }
 @keyframes float { 50% { transform: translateY(-4px); } }
 
+.badge.menu-btn { pointer-events: auto; cursor: pointer; font-family: inherit; color: var(--ink); padding: 4px 13px; font-weight: bold; }
 .badge.sound { pointer-events: auto; cursor: pointer; font-family: inherit; color: var(--ink); padding: 4px 12px; }
 .badge.sound.muted { opacity: .6; }

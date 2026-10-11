@@ -25,6 +25,14 @@ export class Player {
   private wish = new THREE.Vector3();
   /** Seconds since the player last turned the camera manually. */
   private sinceLook = 0;
+  /** Last spot on open, dry ground (for rescues). */
+  readonly safe = new THREE.Vector3();
+  private hasSafe = false;
+  private safeTimer = 0;
+  private stuckTime = 0;
+  private stuckFrom = new THREE.Vector3();
+  /** Called when the player had to be rescued (e.g. stuck in the water under a jetty). */
+  onRescue: (() => void) | null = null;
 
   constructor(
     private game: Game,
@@ -61,6 +69,46 @@ export class Player {
     this.cat.anchor('ANCHOR_hand_R')?.add(rod);
   }
 
+  /** Put the cat somewhere (e.g. back to the harbor) and reset the camera behind it. */
+  placeAt(pos: THREE.Vector3): void {
+    const c = this.controller;
+    c.teleport(pos.clone().addScaledVector(pos.clone().normalize(), 0.3), c.facing.clone());
+    this.rig.setHeading(c.facing.clone());
+    this.stuckTime = 0;
+  }
+
+  /**
+   * Remembers the last safe spot on dry, open ground and rescues the cat when it is stuck in the water
+   * (moving but not getting anywhere for a while) — e.g. trapped between jetty stilts.
+   */
+  private watchStuck(dt: number): void {
+    const c = this.controller;
+    const inp = this.game.input;
+    this.safeTimer -= dt;
+    if (this.safeTimer <= 0 && c.grounded && !c.inWater) {
+      this.safeTimer = 0.5;
+      const head = c.position.clone().addScaledVector(c.up, 1.2);
+      if (!c.collision.raycast(head, c.up, 4)) {
+        this.safe.copy(c.position);
+        this.hasSafe = true;
+      }
+    }
+    const trying = !this.locked && inp.move.lengthSq() > 0.25;
+    if (!trying || !c.inWater) {
+      this.stuckTime = 0;
+      return;
+    }
+    if (this.stuckTime === 0) this.stuckFrom.copy(c.position);
+    this.stuckTime += dt;
+    if (this.stuckTime > 2.5) {
+      if (c.position.distanceTo(this.stuckFrom) < 1.2 && this.hasSafe) {
+        this.placeAt(this.safe);
+        this.onRescue?.();
+      }
+      this.stuckTime = 0;
+    }
+  }
+
   rodTip(out = new THREE.Vector3()): THREE.Vector3 {
     const tip = this.rod ? this.rod.getObjectByName('ANCHOR_tip') : null;
     return tip ? tip.getWorldPosition(out) : out.copy(this.controller.position).addScaledVector(this.controller.up, 1.6);
@@ -77,6 +125,7 @@ export class Player {
     }
     c.update({ dir: this.wish, sprint: inp.held('sprint'), jump: !this.locked && inp.pressed('jump') }, dt);
 
+    this.watchStuck(dt);
     this.cat.root.position.copy(c.position);
     this.cat.root.quaternion.copy(c.quaternion);
     this.cat.speed = c.speed;

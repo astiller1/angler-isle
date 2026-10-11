@@ -16,7 +16,7 @@ SPEC = dict(
     muzzle="small", nose_color="nose", ears="cat", whiskers=True, head_stripes="cat_stripe",
     eye_size=0.17, eye_spread=0.38,
     arm_len=0.22, arm_r=0.068, leg_r=0.085,
-    tail="cat", accessories=accessories,
+    tail="cat_side", accessories=accessories,
 )
 
 

@@ -140,6 +140,13 @@ def build_animal(spec):
             tail_col = (lambda co: stripes if int((co.z - tz) * 14) % 2 == 0 else fur) if stripes else fur
             mb.tube(pts, [0.06, 0.058, 0.055, 0.05, 0.045], color=tail_col, seg=8)
             mb.sphere(0.05, pts[-1], color=s.get("tail_tip", fur), seg=8, rings=6)
+        elif tail == "cat_side":
+            # low under the back-carried cooler, then curling up beside it on the left (+X)
+            tz = H - 0.02
+            pts = [(0, by - 0.02, tz), (0.1, by + 0.1, tz - 0.04), (0.24, by + 0.14, tz - 0.05), (0.34, by + 0.1, tz + 0.04),
+                   (0.38, by + 0.04, tz + 0.18), (0.36, by - 0.02, tz + 0.28)]
+            mb.tube(pts, [0.058, 0.056, 0.054, 0.052, 0.048, 0.045], color=fur, seg=8)
+            mb.sphere(0.05, pts[-1], color=s.get("tail_tip", fur), seg=8, rings=6)
         elif tail == "stub":
             mb.sphere(0.07, (0, by + 0.02, tz + 0.04), color=fur, seg=8, rings=6)
         obj_from(mb, "tail", origin=(0, by, tz), parent_obj=body)
@@ -158,9 +165,11 @@ def add_to(part, name, mb, origin):
 def hat_straw(ctx, color="#F2D38B", band="red"):
     mb = MB()
     top = ctx["head_z"] + ctx["head_r"] * ctx["head_scale"][2] * 0.82
-    mb.cyl(ctx["head_r"] * 1.12, 0.03, (0, 0.06, top), rot=(0.22, 0, 0), color=color, seg=16)
-    mb.cyl(ctx["head_r"] * 0.5, ctx["head_r"] * 0.45, (0, 0.1, top + ctx["head_r"] * 0.2), rot=(0.22, 0, 0), r2=ctx["head_r"] * 0.44, color=color, seg=14)
-    mb.cyl(ctx["head_r"] * 0.52, ctx["head_r"] * 0.13, (0, 0.075, top + ctx["head_r"] * 0.07), rot=(0.22, 0, 0), color=band, seg=14)
+    # level and centred on the crown, just a hint of a backward tilt
+    tilt = (0.06, 0, 0)
+    mb.cyl(ctx["head_r"] * 1.12, 0.03, (0, 0.01, top), rot=tilt, color=color, seg=16)
+    mb.cyl(ctx["head_r"] * 0.5, ctx["head_r"] * 0.45, (0, 0.02, top + ctx["head_r"] * 0.2), rot=tilt, r2=ctx["head_r"] * 0.44, color=color, seg=14)
+    mb.cyl(ctx["head_r"] * 0.52, ctx["head_r"] * 0.13, (0, 0.015, top + ctx["head_r"] * 0.07), rot=tilt, color=band, seg=14)
     return add_to(ctx["head"], "hat", mb, (0, 0, top))
 
 
