@@ -84,6 +84,7 @@ no physics engine — "up" changes across the planet). Plain DOM/CSS HUD. Vitest
   input, `body.compact` HUD layout (`ui/mobile.css`). `core/Quality.ts`: `low` profile on touch/small screens
   (pixel ratio 1.3, 1024 shadows, 45 % decoration), `?quality=high|low` overrides. Test touch in the browser pane
   with a viewport narrower than 768 px (e.g. 740×360) — only then is touch emulated.
+- Hidden testing cheat (`debug/Cheats.ts`): type "bling" or tap the coin counter 5× quickly → +5000 coins.
 - Audio: real *human* melodies, no audio files. `data/tunes.ts` holds public-domain traditional Jamaican folk
   tunes from W. Jekyll, "Jamaican Song and Story" (1907, Project Gutenberg #35410, MusicXML per tune) as
   compact `"midi:len …"` strings (convert more with `tools/musicxml-to-tune.mjs`). `audio/tune.ts` (pure,

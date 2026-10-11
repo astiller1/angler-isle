@@ -17,6 +17,7 @@ import { musicCredits } from './data/music';
 import { MobileShell } from './ui/MobileShell';
 import { loadState, saveState, wipeSave } from './state/save';
 import { PauseMenu } from './ui/PauseMenu';
+import { installCheats } from './debug/Cheats';
 import { validateData } from './data/validate';
 import { T, fmt } from './data/strings';
 import { RODS, rodTier } from './data/upgrades';
@@ -200,6 +201,8 @@ async function boot(): Promise<void> {
     canOpen: () => fishing.phase === 'idle' && !mapView.isOpen,
   });
   player.onRescue = () => hud.toast(T.rescued, 'info');
+  // hidden testing cheat (type "bling" or tap the coins 5×)
+  installCheats(game, state, hud.root.querySelector('.badge.coins') as HTMLElement, (t) => hud.toast(t, 'good'));
 
   game.add({
     update(dt, time) {
