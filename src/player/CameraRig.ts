@@ -13,6 +13,9 @@ export const CAMERA_SETTINGS = {
   pitchSpeed: 1.6,
   mouseSensitivity: 0.005,
   followLerp: 14,
+  /** How quickly the camera follows the player's height (1/s) and how far it may lag behind (m). */
+  heightLerp: 9,
+  maxHeightLag: 0.8,
   fov: 62,
 };
 
@@ -35,6 +38,8 @@ export class CameraRig {
   private pivot = new THREE.Vector3();
   private desired = new THREE.Vector3();
   private dir = new THREE.Vector3();
+  private smoothTarget = new THREE.Vector3();
+  private delta = new THREE.Vector3();
   private initialized = false;
 
   constructor(
@@ -59,7 +64,13 @@ export class CameraRig {
     this.pitch = THREE.MathUtils.clamp(this.pitch + look.y * S.pitchSpeed * dt + mouse.y * S.mouseSensitivity, S.minPitch, S.maxPitch);
     this.right.crossVectors(this.forward, this.up).normalize();
 
-    this.pivot.copy(target).addScaledVector(this.up, S.pivotHeight);
+    // follow the target's height smoothly (slopes, steps), its horizontal position exactly
+    if (!this.initialized) this.smoothTarget.copy(target);
+    const d = this.delta.subVectors(target, this.smoothTarget);
+    const dUp = d.dot(this.up);
+    const lag = THREE.MathUtils.clamp(dUp * Math.exp(-dt * S.heightLerp), -S.maxHeightLag, S.maxHeightLag);
+    this.smoothTarget.copy(target).addScaledVector(this.up, -lag);
+    this.pivot.copy(this.smoothTarget).addScaledVector(this.up, S.pivotHeight);
     this.dir.copy(this.forward).multiplyScalar(-Math.cos(this.pitch)).addScaledVector(this.up, Math.sin(this.pitch)).normalize();
 
     // spring arm: shorten when something is between pivot and camera

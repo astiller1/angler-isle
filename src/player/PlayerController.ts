@@ -234,5 +234,8 @@ function snapToGround(p: PlayerController): boolean {
   p.position.copy(hit.point);
   const vUp = p.velocity.dot(up);
   if (vUp < 0) p.velocity.addScaledVector(up, -vUp);
+  // rest the capsule on the slope the same way collide() does (its sphere touches the slope a bit above
+  // the point straight below) — otherwise the height alternates between snap and lift every frame (jitter)
+  collide(p);
   return true;
 }

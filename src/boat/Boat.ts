@@ -20,6 +20,50 @@ export function wrapDeg(a: number): number {
   return ((((a + 180) % 360) + 360) % 360) - 180;
 }
 
+/** Stencil value the boat opening writes; the water is not drawn where it is set (no water inside the hull). */
+export const WATER_MASK_REF = 1;
+
+/**
+ * Invisible lid over the hull opening (follows the gunwale of art/props/rowboat.py). Drawn before the
+ * water, it only marks the stencil buffer — the floor boards sit below the waterline, so without it the
+ * sea surface would show inside the boat.
+ */
+function buildWaterMask(): THREE.Mesh {
+  const L = 3.6;
+  const N = 14;
+  const pos: number[] = [];
+  const idx: number[] = [];
+  for (let i = 0; i <= N; i++) {
+    const u = i / N;
+    const w = 0.7 * Math.sqrt(Math.max(0, 1 - (1 - u) ** 2.4)) * (1 - 0.18 * u ** 4);
+    const top = 0.5 + 0.22 * (1 - u) ** 3 - 0.02;
+    const z = L / 2 - L * u; // Blender -Y (bow) = three.js +Z
+    pos.push(-w, top, z, w, top, z);
+    if (i < N) {
+      const a = i * 2;
+      idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  const m = new THREE.MeshBasicMaterial({
+    colorWrite: false,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    stencilWrite: true,
+    stencilRef: WATER_MASK_REF,
+    stencilFunc: THREE.AlwaysStencilFunc,
+    stencilZPass: THREE.ReplaceStencilOp,
+  });
+  const mesh = new THREE.Mesh(g, m);
+  mesh.name = 'water_mask';
+  mesh.renderOrder = -2;
+  mesh.castShadow = false;
+  mesh.frustumCulled = false;
+  return mesh;
+}
+
 /**
  * The rowboat: a model floating on the waves at a map position + heading, with simple forgiving
  * handling (the boat turns toward the stick direction and pulls forward) and grounding against the
@@ -61,6 +105,7 @@ export class Boat {
     this.prop = this.outboard.getObjectByName('prop') ?? null;
     (this.root.getObjectByName('ANCHOR_motor') ?? this.root).add(this.outboard);
     this.outboard.visible = false;
+    this.root.add(buildWaterMask());
   }
 
   setMotor(on: boolean): void {
@@ -223,10 +268,8 @@ export class InBoat implements MovementMode {
     p.grounded = true;
     p.inWater = false;
     p.speed = Math.abs(b.speed);
-    // the cat looks where the boat goes (it may still turn freely on the seat to aim a cast)
-    if (intent.dir.lengthSq() > 0.01 || Math.abs(b.speed) > 0.3) {
-      const up = upAt(p.position, _a);
-      p.faceToward(toTangent(b.forward(_b), up), dt, 6);
-    }
+    // the cat always faces the bow (casts go over the bow — aim by turning the boat)
+    const up = upAt(p.position, _a);
+    p.facing.copy(toTangent(b.forward(_b), up));
   }
 }

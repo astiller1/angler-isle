@@ -26,7 +26,7 @@ export class Game {
   onFrame: ((dt: number) => void) | null = null;
 
   constructor(readonly canvas: HTMLCanvasElement) {
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: QUALITY.antialias, powerPreference: 'high-performance' });
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: QUALITY.antialias, powerPreference: 'high-performance', stencil: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, QUALITY.pixelRatio));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.toneMapping = THREE.NeutralToneMapping;

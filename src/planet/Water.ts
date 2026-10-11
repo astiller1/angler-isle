@@ -44,6 +44,10 @@ export class Water {
       ]),
       vertexShader: VERT,
       fragmentShader: FRAG,
+      // skip pixels marked by the boat's water mask (stencil = 1), so the sea does not show inside the hull
+      stencilWrite: true,
+      stencilRef: 1,
+      stencilFunc: THREE.NotEqualStencilFunc,
     });
     this.material.uniforms.uSeabed.value = seabed.texture;
     this.mesh = new THREE.Mesh(buildGeometry(), this.material);

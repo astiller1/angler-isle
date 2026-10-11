@@ -123,8 +123,8 @@ export class Player {
     const c = this.controller;
     this.wish.set(0, 0, 0).addScaledVector(this.rig.forward, inp.move.y).addScaledVector(this.rig.right, inp.move.x);
     if (this.locked) {
-      // allow turning in place (aiming the cast) while locked
-      if (this.wish.lengthSq() > 0.04) c.faceToward(toTangent(this.wish.clone(), c.up), dt, 6);
+      // allow turning in place (aiming the cast) while locked — on foot; in the boat the cat faces the bow
+      if (this.wish.lengthSq() > 0.04 && c.mode.id !== 'inBoat') c.faceToward(toTangent(this.wish.clone(), c.up), dt, 6);
       this.wish.set(0, 0, 0);
     }
     c.update({ dir: this.wish, sprint: inp.held('sprint'), jump: !this.locked && inp.pressed('jump') }, dt);
