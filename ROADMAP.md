@@ -34,6 +34,11 @@
   by a synthesized island band (steel pan, Karplus-Strong ukulele, light bass, shaker); dances by day,
   waltzes on marimba at night
 
+## Version 7 ✔
+- Game menu (☰ / Esc / gamepad Start): resume, music on/off, back to the harbor, controls, new game (with confirm)
+- Invisible skirts under dock, pier, mangrove boardwalk and stilt houses + automatic rescue when stuck in water
+- Cat model: straw hat level/centred, tail curls out below and beside the cooler
+
 ## Milestone 2 — Shop & upgrades (rest)
 - Coolers 4 → 6 → 8 (cooler view already reads slot count from data)
 - Bait items that bias spot species tables
