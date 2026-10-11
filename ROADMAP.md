@@ -24,8 +24,11 @@
   low-quality render profile, web app manifest (landscape, fullscreen)
 
 ## Version 4 ✔
-- Cheerful island background music, synthesized live (calypso: steel pan, guitar chucks, bass, bongos);
-  new melody every loop, mellow night band that follows the day cycle; mute via M / speaker button
+- Background music with mute via M / speaker button (first version: live-synthesized — replaced in v5)
+
+## Version 5 ✔
+- Human-made music: "Feel Good Island (Loop)" by Brandon Morris (CC0) with bass cut (−11 dB) and make-up
+  gain; softer and quieter at night; ready for an extra night track (cross-fade)
 
 ## Milestone 2 — Shop & upgrades (rest)
 - Coolers 4 → 6 → 8 (cooler view already reads slot count from data)

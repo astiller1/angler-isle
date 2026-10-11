@@ -12,7 +12,8 @@ import { Neighbors } from './npc/Neighbors';
 import { Hud } from './ui/Hud';
 import { renderFishIcons } from './ui/FishIcons';
 import { TouchControls } from './ui/TouchControls';
-import { Music, loadAudioSettings, saveAudioSettings } from './audio/Music';
+import { MusicPlayer, loadAudioSettings, saveAudioSettings } from './audio/MusicPlayer';
+import { musicCredits } from './data/music';
 import { MobileShell } from './ui/MobileShell';
 import { loadState, saveState } from './state/save';
 import { validateData } from './data/validate';
@@ -89,19 +90,20 @@ async function boot(): Promise<void> {
   hud.renderAll();
   const fishing = new FishingSystem(game, player, hud, state, world.seabed);
 
-  // ---- background music (synthesized live; browsers only allow audio after a user gesture)
+  // ---- background music (human-made tracks, see data/music.ts; browsers only allow audio after a user gesture)
   const audio = loadAudioSettings();
-  let music: Music | null = null;
+  let music: MusicPlayer | null = null;
   hud.setSound(audio.muted);
   const unlockAudio = () => {
     if (music) return;
     const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (!Ctx) return;
     const ctx = new Ctx();
-    music = new Music(ctx);
+    music = new MusicPlayer(ctx);
     music.night = musicNight();
     music.setVolume(audio.volume, audio.muted);
-    ctx.resume().then(() => music!.start());
+    const player = music;
+    ctx.resume().then(() => player.load()).then(() => player.start());
   };
   const toggleMusic = () => {
     audio.muted = !audio.muted;
@@ -159,7 +161,10 @@ async function boot(): Promise<void> {
       neighbors.update(dt);
       markers.update(time, dt);
       env.update(dt, time, player.controller.position, player.rig.camera, player.controller.up);
-      if (music) music.night = musicNight();
+      if (music) {
+        music.night = musicNight();
+        music.update();
+      }
       hud.clock(env.hour);
     },
   });
@@ -176,7 +181,9 @@ async function boot(): Promise<void> {
   if (isNew) {
     player.lock('intro', true);
     for (let i = 0; i < T.intro.length; i++) {
-      await hud.menu.open({ title: T.title, text: T.intro[i], options: [{ label: i < T.intro.length - 1 ? 'Weiter' : 'Los geht’s!' }] });
+      const last = i === T.intro.length - 1;
+      const text = last ? `${T.intro[i]}<br><small>${fmt(T.musicCredit, { credits: musicCredits() })}</small>` : T.intro[i];
+      await hud.menu.open({ title: T.title, text, options: [{ label: last ? 'Los geht’s!' : 'Weiter' }] });
     }
     player.lock('intro', false);
   }

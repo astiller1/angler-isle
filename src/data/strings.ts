@@ -52,6 +52,7 @@ export const T = {
   roundStart: 'Runde {round}: Die Nachbarn haben neue Wünsche!',
   roundDone: 'Alle Wünsche erfüllt! Eine neue Runde beginnt.',
   coinsGained: '+{coins} Münzen',
+  musicCredit: 'Musik: {credits}',
 
   // shop
   shop: 'Laden (Rocco)',

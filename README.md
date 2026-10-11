@@ -38,3 +38,7 @@ npm run art      # 3D-Modelle aus den Blender-Skripten neu exportieren (Blender 
 npm run deploy   # bauen und auf GitHub Pages veröffentlichen
 ```
 Three.js + Vite + TypeScript. Alle 3D-Modelle sind Blender-Python-Skripte in `art/`. Details in `CLAUDE.md`.
+
+## Credits
+- Musik: „Feel Good Island (Loop)“ von **Brandon Morris**, Loop-Schnitt von **AntumDeluge** — CC0
+  ([OpenGameArt](https://opengameart.org/content/feel-good-island-loop))
