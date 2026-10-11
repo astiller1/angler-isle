@@ -1,4 +1,4 @@
-import { BOAT, RODS, rodTier, type RodTier } from '../data/upgrades';
+import { BOAT, COOLERS, coolerTier, RODS, rodTier, type CoolerTier, type RodTier } from '../data/upgrades';
 import type { GameState } from '../state/GameState';
 
 /** Pure shop rules for rod upgrades. */
@@ -57,4 +57,27 @@ export function buyGear(state: GameState, id: 'boat' | 'motor'): boolean {
     state.boat.dock = 'hafen';
   } else state.boat.motor = true;
   return true;
+}
+
+/** Cooler upgrades (more slots), bought in order like the rods. */
+export type CoolerOffer =
+  | { cooler: CoolerTier; status: 'owned' | 'buyable' }
+  | { cooler: CoolerTier; status: 'tooExpensive'; missing: number }
+  | { cooler: CoolerTier; status: 'locked'; requires: CoolerTier };
+
+export function coolerOffers(state: GameState): CoolerOffer[] {
+  return COOLERS.filter((c) => c.price > 0).map((cooler) => {
+    if (cooler.tier <= state.coolerTier) return { cooler, status: 'owned' };
+    if (cooler.tier > state.coolerTier + 1) return { cooler, status: 'locked', requires: coolerTier(cooler.tier - 1) };
+    if (state.coins < cooler.price) return { cooler, status: 'tooExpensive', missing: cooler.price - state.coins };
+    return { cooler, status: 'buyable' };
+  });
+}
+
+export function buyNextCooler(state: GameState): CoolerTier | null {
+  const next = COOLERS.find((c) => c.tier === state.coolerTier + 1);
+  if (!next || state.coins < next.price) return null;
+  state.coins -= next.price;
+  state.coolerTier = next.tier;
+  return next;
 }

@@ -90,9 +90,11 @@ export const T = {
   shopBoatSection: 'Boot',
   shopGear: '{name} — {price} Münzen',
   shopGearLocked: 'Erst das {name} kaufen',
+  shopCoolerLocked: 'Erst die {name} kaufen',
   boatBought: 'Dein Ruderboot liegt jetzt am Ende vom langen Pier! Steig dort ein. Anlegen kannst du an jedem ⚓ Anleger.',
   motorBought: 'Der Außenbordmotor ist montiert. Brumm brumm!',
   gearBought: 'Neu: {name}!',
+  coolerUpgraded: 'Deine Kühlbox fasst jetzt {slots} Fische!',
   tooStrong: 'Der ist zu stark für deine Angel! Im Laden gibt es bessere.',
 
   // boat

@@ -169,3 +169,8 @@ kbd.pad-RT, kbd.pad-LT { background: #555; border-radius: 8px; }
   background: #ff8a5b; border-radius: 6px; padding: 0 4px; }
 .map-foot { font-size: 12px; text-align: center; color: #6b5034; }
 .mk.nolabel .lb { display: none; }
+/* more than 4 slots: two rows of smaller slots */
+.cooler-bar.many .slots { display: grid; grid-template-columns: repeat(4, auto); gap: 4px; }
+.cooler-bar.many .slot { width: 58px; height: 40px; }
+.cooler-bar.many .slot img { width: 52px; height: 28px; }
+.cooler-bar.many .slot small { font-size: 10px; }

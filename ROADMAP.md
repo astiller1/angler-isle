@@ -52,8 +52,11 @@
   piers, neighbors (with open-wish badge), shops and places; "Neu auf der Karte" toasts; Walter may mark the
   Riffkante as a delivery bonus (hint reward)
 
+## Version 9 ✔
+- Cooler upgrades at Rocco's: 4 → 6 (150) → 8 (350) slots. The cooler on the cat's back is now a closed box that
+  always looks the same (fish are no longer shown inside); with more than 4 slots the HUD shows two rows
+
 ## Milestone 2 — Shop & upgrades (rest)
-- Coolers 4 → 6 → 8 (cooler view already reads slot count from data)
 - Bait items that bias spot species tables
 - Neighbor extra rewards: bait, cosmetics (hint rewards are live since v8)
 

@@ -7,11 +7,11 @@ import type { Player } from '../player/Player';
 import type { GameState } from '../state/GameState';
 import type { Hud } from '../ui/Hud';
 import type { MenuOption } from '../ui/Menu';
-import { boatOffers, buyGear, buyNextRod, rodOffers, type GearOffer } from './shop';
+import { boatOffers, buyGear, buyNextCooler, buyNextRod, coolerOffers, rodOffers, type CoolerOffer, type GearOffer } from './shop';
 
 /**
- * Rocco's tackle shop in the shack: rod upgrades (tier by tier), the rowboat and its outboard motor.
- * Coolers and bait (data already in data/upgrades.ts) will be added to this menu later.
+ * Rocco's tackle shop in the shack: rod upgrades (tier by tier), cooler upgrades, the rowboat and its motor.
+ * Bait (data already in data/upgrades.ts) will be added to this menu later.
  */
 export class ShopSystem {
   private npc: Npc;
@@ -36,6 +36,20 @@ export class ShopSystem {
 
   private stats(rod: RodTier): string {
     return fmt(T.shopStats, { cast: rod.castMax, tension: Math.round(rod.tensionLimit * 100), reel: Math.round(rod.reelSpeed * 100) });
+  }
+
+  private coolerOption(o: CoolerOffer): MenuOption {
+    const label = fmt(T.shopGear, { name: o.cooler.name, price: o.cooler.price });
+    switch (o.status) {
+      case 'owned':
+        return { label: `✔ ${o.cooler.name}`, hint: o.cooler.description, disabled: true };
+      case 'buyable':
+        return { label, hint: o.cooler.description };
+      case 'tooExpensive':
+        return { label, hint: `${fmt(T.shopMissing, { coins: o.missing })} · ${o.cooler.description}`, disabled: true };
+      case 'locked':
+        return { label, hint: fmt(T.shopCoolerLocked, { name: o.requires.name }), disabled: true };
+    }
   }
 
   private gearOption(g: GearOffer): MenuOption {
@@ -73,14 +87,29 @@ export class ShopSystem {
               return { label: fmt(T.shopBuy, { rod: o.rod.name, price: o.rod.price }), hint: fmt(T.shopLocked, { rod: o.requires.name }), disabled: true };
           }
         });
+        const coolers = coolerOffers(this.state);
+        options.push(...coolers.map((c) => this.coolerOption(c)));
         const gear = boatOffers(this.state);
         options.push(...gear.map((g) => this.gearOption(g)));
         options.push({ label: T.leave });
         const maxed = offers.every((o) => o.status === 'owned');
         const text = !this.state.hasRod ? T.noRod : maxed ? T.shopMax : `${fmt(T.shopGreet, { rod: current.name })}<br><small>${this.stats(current)}</small>`;
         const choice = await this.hud.menu.open({ title: T.shopTitle, text, options });
-        if (choice >= offers.length && choice < offers.length + gear.length) {
-          const g = gear[choice - offers.length];
+        const coolerAt = offers.length;
+        const gearAt = coolerAt + coolers.length;
+        if (choice >= coolerAt && choice < gearAt) {
+          if (coolers[choice - coolerAt].status !== 'buyable') return;
+          const c = buyNextCooler(this.state);
+          if (!c) return;
+          this.neighbors.celebrate(this.npc);
+          this.game.events.emit('coins:changed', { coins: this.state.coins, delta: -c.price });
+          this.game.events.emit('cooler:changed');
+          this.player.cooler.refresh();
+          this.hud.toast(fmt(T.coolerUpgraded, { slots: c.slots }), 'good');
+          continue;
+        }
+        if (choice >= gearAt && choice < gearAt + gear.length) {
+          const g = gear[choice - gearAt];
           if (g.status !== 'buyable' || !buyGear(this.state, g.id)) return;
           this.neighbors.celebrate(this.npc);
           this.game.events.emit('coins:changed', { coins: this.state.coins, delta: -g.price });

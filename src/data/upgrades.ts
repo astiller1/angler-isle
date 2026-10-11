@@ -21,7 +21,7 @@ export interface CoolerTier {
   name: string;
   price: number;
   slots: number;
-  model: string;
+  description: string;
 }
 
 export interface BaitDef {
@@ -44,10 +44,11 @@ export const RODS: RodTier[] = [
     description: 'Für echte Profis: riesige Wurfweite, kaum zu zerreißen, blitzschnell eingeholt.' },
 ];
 
+/** Cooler upgrades: the box on the cat's back stays the same, it just holds more fish (bought in order). */
 export const COOLERS: CoolerTier[] = [
-  { tier: 1, name: 'Kleine Kühlbox', price: 0, slots: 4, model: 'props/cooler_small' },
-  { tier: 2, name: 'Mittlere Kühlbox', price: 150, slots: 6, model: 'props/cooler_small' },
-  { tier: 3, name: 'Große Kühlbox', price: 350, slots: 8, model: 'props/cooler_small' },
+  { tier: 1, name: 'Kühlbox', price: 0, slots: 4, description: 'Platz für 4 Fische.' },
+  { tier: 2, name: 'Kühlbox-Erweiterung', price: 150, slots: 6, description: 'Clever gepackt: Platz für 6 Fische.' },
+  { tier: 3, name: 'Profi-Kühlbox', price: 350, slots: 8, description: 'Mit Eis-Trick: Platz für 8 Fische.' },
 ];
 
 export const BAITS: BaitDef[] = [

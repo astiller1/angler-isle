@@ -132,6 +132,7 @@ export class Hud {
     }
     this.coolerEl.innerHTML = html + '</div>';
     this.coolerEl.classList.toggle('full', this.state.cooler.length >= cap);
+    this.coolerEl.classList.toggle('many', cap > 4);
     this.renderRequests();
   }
 

@@ -82,3 +82,21 @@ describe('map fog', () => {
     for (const p of [...SPOTS, ...PLACES]) expect(Math.abs(p.x) < h && Math.abs(p.z) < h, p.id).toBe(true);
   });
 });
+
+describe('cooler upgrades', () => {
+  it('add slots in order without changing anything else', async () => {
+    const { coolerOffers, buyNextCooler } = await import('../src/economy/shop');
+    const { coolerCapacity } = await import('../src/inventory/Cooler');
+    const s = newGameState();
+    expect(coolerCapacity(s)).toBe(4);
+    s.coins = 100;
+    expect(coolerOffers(s).map((o) => o.status)).toEqual(['tooExpensive', 'locked']);
+    expect(buyNextCooler(s)).toBeNull();
+    s.coins = 500;
+    expect(buyNextCooler(s)?.slots).toBe(6);
+    expect(coolerCapacity(s)).toBe(6);
+    expect(buyNextCooler(s)?.slots).toBe(8);
+    expect(s.coins).toBe(0);
+    expect(buyNextCooler(s)).toBeNull();
+  });
+});

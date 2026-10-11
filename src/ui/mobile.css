@@ -107,3 +107,6 @@ body.compact .map-box { width: min(80vh, 86vw); }
 body.compact .map-foot { font-size: 10px; }
 body.compact .mk .ic { font-size: 14px; }
 body.compact .mk .lb { font-size: 9px; }
+body.compact .cooler-bar.many .slot { width: 36px; height: 22px; }
+body.compact .cooler-bar.many .slot img { width: 32px; height: 18px; }
+body.compact .cooler-bar.many .slot small { display: none; }

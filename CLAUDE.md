@@ -12,7 +12,7 @@ animals. In-game language is **German** (all player-facing text lives in `src/da
 - Vertical exploration: lighthouse with stairs, stilt-house upper floors, rope bridges, long pier.
 - Start: bait-and-tackle shack on the dock, beside a rod rack.
 - Core loop: take rod → find spots → cast / wait for bite / reel with light tension → fish go into a
-  visible cooler (4 slots, upgradable 6/8) → sell to the fish trader (base price) or deliver to neighbors
+  cooler on the back (4 slots, upgradable to 6/8 — a closed box that always looks the same) → sell to the fish trader (base price) or deliver to neighbors
   (2–3× price, sometimes extra rewards: hidden-spot hint, special bait, cosmetic). Each neighbor takes one
   delivery per round; when all are served a new round with new requests starts.
 - Shop (tackle shack): 3 rod tiers (cast range, tension tolerance, rare fish need better rods), coolers,
@@ -66,7 +66,7 @@ no physics engine — "up" changes across the planet). Plain DOM/CSS HUD. Vitest
 - `src/world/Environment.ts` — day–night cycle: one directional light follows the sun by day and the moon
   by night; sky/fog/water/ambient colors interpolate `SKY_KEYS` (`data/daycycle.ts`). Lantern glows come
   from `GLOW_*` empties in the models.
-- `src/economy/` — `shop.ts` (pure rules: rod tiers, boat → motor), `ShopSystem.ts` (Rocco + menu), `trader.ts`.
+- `src/economy/` — `shop.ts` (pure rules: rod tiers, cooler tiers, boat → motor), `ShopSystem.ts` (Rocco + menu), `trader.ts`.
 - `src/boat/` — `Boat.ts`: rowboat model floating on the waves at a map pose (x, z, yaw), camera-relative steering
   (turns toward the stick, pulls forward when facing it), grounding where the seabed is shallower than
   `BOAT_SETTINGS.draft` or a keel ray hits collision (posts, pier skirts, mangroves); `InBoat` is the
