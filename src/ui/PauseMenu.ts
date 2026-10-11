@@ -42,7 +42,13 @@ export class PauseMenu {
           { label: T.menuRestart, hint: T.menuRestartHint },
         ];
         const credits = `<small>${fmt(T.musicCredit, { credits: musicCredits() })}</small>`;
-        const choice = await this.hud.menu.open({ title: T.menuTitle, text: credits, options, backIndex: 0 });
+        const choice = await this.hud.menu.open({
+          title: T.menuTitle,
+          subtitle: fmt(T.menuVersion, { version: __GAME_VERSION__ }),
+          text: credits,
+          options,
+          backIndex: 0,
+        });
         if (choice === 1) {
           this.actions.toggleMusic();
           continue;

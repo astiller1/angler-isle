@@ -58,6 +58,7 @@ export const T = {
 
   // game menu
   menuTitle: 'Menü',
+  menuVersion: 'Version {version}',
   menuResume: '▶ Weiterspielen',
   menuMusicOn: '🔊 Musik: an',
   menuMusicOff: '🔇 Musik: aus',

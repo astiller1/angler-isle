@@ -41,6 +41,8 @@ npm run deploy       # build + force-push dist/ to the gh-pages branch → https
 ```
 Repo: https://github.com/astiller1/angler-isle (public; `main` = source, `gh-pages` = built game, Pages serves
 `gh-pages`). Vite `base: './'` keeps asset URLs relative so the build works under the `/angler-isle/` sub-path.
+Version shown in the game menu (title subtitle) = latest git tag via `__GAME_VERSION__` (vite.config.ts): "9" on
+tag v9, "9+<hash>" for later commits — tag each finished version (`git tag v10`) so the menu shows it.
 Deploying uses a local script (not GitHub Actions) because the gh token lacks the `workflow` scope.
 On Windows PowerShell use `npm.cmd …` if script execution is disabled.
 
